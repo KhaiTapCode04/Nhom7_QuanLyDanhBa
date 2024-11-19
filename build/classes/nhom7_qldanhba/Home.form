@@ -10,7 +10,7 @@
       <Rectangle value="[20, 20, 0, 0]"/>
     </Property>
     <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-      <Dimension value="[350, 670]"/>
+      <Dimension value="[400, 700]"/>
     </Property>
   </Properties>
   <SyntheticProperties>
