@@ -21,7 +21,17 @@
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="3"/>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+<<<<<<< HEAD:build/classes/nhom7_qldanhba/HomePage.form
       <Color blue="e2" green="f8" red="e2" type="rgb"/>
+=======
+      <Color blue="cc" green="ff" red="cc" type="rgb"/>
+    </Property>
+    <Property name="bounds" type="java.awt.Rectangle" editor="org.netbeans.beaninfo.editors.RectangleEditor">
+      <Rectangle value="[20, 20, 0, 0]"/>
+    </Property>
+    <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+      <Dimension value="[400, 700]"/>
+>>>>>>> b81e5894df671ec79852664613c61539a44cc502:build/classes/nhom7_qldanhba/Home.form
     </Property>
   </Properties>
   <SyntheticProperties>
