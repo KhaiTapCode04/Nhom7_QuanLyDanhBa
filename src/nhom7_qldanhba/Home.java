@@ -17,7 +17,7 @@ public class Home extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(204, 255, 204));
         setBounds(new java.awt.Rectangle(20, 20, 0, 0));
-        setPreferredSize(new java.awt.Dimension(480, 800));
+        setPreferredSize(new java.awt.Dimension(350, 670));
 
         jLabel1.setBackground(new java.awt.Color(153, 255, 204));
         jLabel1.setFont(new java.awt.Font("Helvetica Neue", 1, 36)); // NOI18N
