@@ -5,17 +5,25 @@ import java.awt.*;
 import javax.swing.border.AbstractBorder;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.Map;
 import java.util.Random;
-
+import java.util.List;
 public class TrangChu extends javax.swing.JFrame {
+    
+    private List<User> users;
 
-    private Map<String, Color> contactColors = new HashMap<>();
+    private Map<String, Color> contactColors = new TreeMap<>();
 
     public TrangChu() {
         initComponents();
+        
+        // Lấy kết nối từ DatabaseConnection
+        
+
 
         // Đặt border bo tròn cho txtSearch
         txtSearch.setBorder(new RoundedBorder(20, new Color(204, 204, 204)));
@@ -51,48 +59,66 @@ public class TrangChu extends javax.swing.JFrame {
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 10, 30)); // Viền cho danh sách
 
-        // Tạo danh sách liên lạc mẫu
-        String[] contacts = {
-            "Nguyen Van A", "Tran Thi B", "Anh ba", "Le Van C", "Aham Van D",
-            "Doan Thi E", "Hoang Van F", "Bui Thi G", "Bguyen Van H"
-        };
+        // Lấy kết nối từ DatabaseConnection
+        Connection connection = null;
+        try {
+            connection = DatabaseConnection.connect();
 
-        // Sắp xếp danh sách liên lạc theo bảng chữ cái
-        Arrays.sort(contacts);
+            if (connection != null) {
+                // Lấy danh sách người dùng
+                users = UserDataFetcher.fetchData(connection);
+                 // Tạo danh sách liên lạc mẫu
+                 String[] contacts = new String[users.size()];
 
-        // Dùng HashMap để nhóm theo chữ cái đầu
-        Map<Character, JPanel> contactGroups = new HashMap<>();
+                // Lấy tên người dùng và thêm vào mảng contacts
+                for (int i = 0; i < users.size(); i++) {
+                    contacts[i] = users.get(i).getUsername().toUpperCase();
 
-        // Chia các liên lạc theo chữ cái đầu
-        for (String contact : contacts) {
-            char firstLetter = contact.charAt(0);
-            contactGroups.putIfAbsent(firstLetter, new JPanel());
+                }
+                
+                // Sắp xếp danh sách liên lạc theo bảng chữ cái
+                Arrays.sort(contacts, String.CASE_INSENSITIVE_ORDER);
+                
+                
 
-            // Lấy nhóm liên lạc của chữ cái đầu tiên
-            JPanel contactGroup = contactGroups.get(firstLetter);
+                Map<Character, JPanel> contactGroups = new TreeMap<>();
 
-            // Thêm mục liên lạc vào nhóm với khoảng cách
-            contactGroup.add(createContactItem(contact));
+                // Chia các liên lạc theo chữ cái đầu
+                for (String contact : contacts) {
+                    char firstLetter = contact.charAt(0);
+                    contactGroups.putIfAbsent(firstLetter, new JPanel());
 
-            // Tạo một khoảng cách giữa các liên lạc trong cùng nhóm
-            contactGroup.add(Box.createRigidArea(new Dimension(0, 15)));
+                    // Lấy nhóm liên lạc của chữ cái đầu tiên
+                    JPanel contactGroup = contactGroups.get(firstLetter);
+
+                    // Thêm mục liên lạc vào nhóm với khoảng cách
+                    contactGroup.add(createContactItem(contact));
+                    contactGroup.add(Box.createRigidArea(new Dimension(0, 15)));
+                }
+
+                // Duyệt qua các nhóm chữ cái và thêm vào panel chính
+                for (Map.Entry<Character, JPanel> entry : contactGroups.entrySet()) {
+                    JLabel groupTitle = new JLabel(String.valueOf(entry.getKey()), SwingConstants.LEFT);
+                    groupTitle.setFont(new Font("Arial", Font.BOLD, 20));
+                    groupTitle.setForeground(Color.BLUE);
+                    groupTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+                    mainPanel.add(groupTitle);
+
+                    JPanel contactGroup = entry.getValue();
+                    contactGroup.setLayout(new BoxLayout(contactGroup, BoxLayout.Y_AXIS));
+                    mainPanel.add(contactGroup);
+                    mainPanel.add(Box.createRigidArea(new Dimension(0, 22)));
+                }
+
+            } else {
+                System.out.println("Kết nối tới cơ sở dữ liệu thất bại.");
+            }
+        } finally {
+            // Đảm bảo đóng kết nối
+            DatabaseConnection.close(connection);
         }
-
-        // Duyệt qua các nhóm chữ cái và thêm vào panel chính
-        for (Map.Entry<Character, JPanel> entry : contactGroups.entrySet()) {
-            // Tạo một tiêu đề cho mỗi nhóm chữ cái
-            JLabel groupTitle = new JLabel(String.valueOf(entry.getKey()), SwingConstants.LEFT);
-            groupTitle.setFont(new Font("Arial", Font.BOLD, 20));
-            groupTitle.setForeground(Color.BLUE);
-            groupTitle.setAlignmentX(Component.LEFT_ALIGNMENT); // Căn trái
-            mainPanel.add(groupTitle);
-
-            // Thêm các liên lạc vào nhóm
-            JPanel contactGroup = entry.getValue();
-            contactGroup.setLayout(new BoxLayout(contactGroup, BoxLayout.Y_AXIS));
-            mainPanel.add(contactGroup);
-            mainPanel.add(Box.createRigidArea(new Dimension(0, 22))); // Khoảng cách giữa các nhóm
-        }
+        
 
         // Thêm Panel chính vào JScrollPane để hỗ trợ cuộn
         JScrollPane scrollPane = new JScrollPane(mainPanel);
@@ -108,6 +134,7 @@ public class TrangChu extends javax.swing.JFrame {
     }
 
     private JPanel createContactItem(String contactName) {
+        
         // Lấy chữ cái đầu tiên của tên liên lạc
         String firstLetter = contactName.substring(0, 1).toUpperCase();
 
@@ -144,14 +171,32 @@ public class TrangChu extends javax.swing.JFrame {
         // Thêm sự kiện click để mở chi tiết liên lạc
         contactPanel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                // Mở màn hình chi tiết liên lạc khi click
-                ChiTietLienLac chiTietLienLac = new ChiTietLienLac(contactName, TrangChu.this);
-                chiTietLienLac.setVisible(true);
+                // Tìm thông tin của user hiện tại
+                User selectedUser = users.stream()
+                    .filter(user -> user.getUsername().toUpperCase().equals(contactName))
+                    .findFirst()
+                    .orElse(null);
 
-                // Ẩn màn hình chính
-                setVisible(false);
+                if (selectedUser != null) {
+                    // Mở màn hình chi tiết liên lạc với thông tin từ user
+                    ChiTietLienLac chiTietLienLac = new ChiTietLienLac(
+                        selectedUser.getUsername(),  
+                        selectedUser.getPhone(),
+                        selectedUser.getAddress(),
+                        selectedUser.getEmail(),
+                        selectedUser.getNote(),
+                        TrangChu.this
+                    );
+                    chiTietLienLac.setVisible(true);
+
+                    // Ẩn màn hình chính
+                    setVisible(false);
+                } else {
+                    System.out.println("Không tìm thấy thông tin của user: " + contactName);
+                }
             }
         });
+
 
         return contactPanel;
     }
