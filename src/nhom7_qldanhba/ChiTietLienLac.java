@@ -11,6 +11,11 @@ public class ChiTietLienLac extends javax.swing.JFrame {
 
     private TrangChu trangChu;
     private String contactName;
+    private String email;
+    private String phone;
+    private String address;
+    private String note;
+
     private Color avatarColor;
     private JButton btnBack, btnEdit, btnStar, btnDelete;
     private JPanel actionButtonsPanel;
@@ -19,12 +24,17 @@ public class ChiTietLienLac extends javax.swing.JFrame {
     private JLabel Header;
     
 
-    public ChiTietLienLac(String contactName, TrangChu trangChu) {
+    public ChiTietLienLac(String contactName,String phone, String email, String address, String note, TrangChu trangChu) {
         this.contactName = contactName;
+        this.email = email;
+        this.phone = phone;
+        this.address = address;
+        this.note = note;
         this.trangChu = trangChu;
-        this.avatarColor = trangChu.getContactColor(contactName);
+        this.avatarColor = trangChu != null ? trangChu.getContactColor(contactName) : Color.GRAY; // Nếu trangChu là null
         initComponents();
     }
+
 
     private void initComponents() {
         // Khởi tạo các components chính
@@ -225,7 +235,7 @@ private void addHoverEffect(JButton button, Color hoverColor, Color originalColo
 
         JLabel titleLabel = new JLabel("Thông tin liên hệ");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 30));
- titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
         infoPanel.add(titleLabel);
 
@@ -233,64 +243,75 @@ private void addHoverEffect(JButton button, Color hoverColor, Color originalColo
         infoPanel.add(phonePanel);
         infoPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
-        JPanel emailPanel = createInfoPanel("📧", "danghuynhk@gmail.com", "Công việc");
+        JPanel emailPanel = createInfoPanel("📧", email, "Công việc");
         infoPanel.add(emailPanel);
         infoPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
-        JPanel addressPanel = createInfoPanel("🏠", "123 Đường ABC, Quận X, Thành phố Y", "Địa chỉ nhà");
+        JPanel addressPanel = createInfoPanel("🏠", address, "Địa chỉ nhà");
         infoPanel.add(addressPanel);
         infoPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
-        JPanel notePanel = createInfoPanel("📝", "Liên hệ trong giờ hành chính", "Ghi chú");
+        JPanel notePanel = createInfoPanel("📝", note, "Ghi chú");
         infoPanel.add(notePanel);
 
         mainPanel.add(infoPanel);
     }
 
+
     private JPanel createPhoneInfoPanel() {
-        JPanel phonePanel = new JPanel();
-        phonePanel.setLayout(new BorderLayout(10, 0));
-        phonePanel.setBackground(new Color(255, 245, 238));
-        phonePanel.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
-                BorderFactory.createEmptyBorder(15, 15, 15, 15)
-        ));
-        phonePanel.setMaximumSize(new Dimension(400, 80));
+    JPanel phonePanel = new JPanel();
+    phonePanel.setLayout(new BorderLayout(10, 0));
+    phonePanel.setBackground(new Color(255, 245, 238));
+    phonePanel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1),
+            BorderFactory.createEmptyBorder(15, 15, 15, 15)
+    ));
+    phonePanel.setMaximumSize(new Dimension(400, 80));
 
-        JLabel phoneIcon = new JLabel("📞");
-        phoneIcon.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+    JLabel phoneIcon = new JLabel("📞");
+    phoneIcon.setFont(new Font("Segoe UI", Font.PLAIN, 20));
 
-        JPanel phoneInfo = new JPanel();
-        phoneInfo.setLayout(new BoxLayout(phoneInfo, BoxLayout.Y_AXIS));
-        phoneInfo.setBackground(new Color(255, 245, 238));
+    JPanel phoneInfo = new JPanel();
+    phoneInfo.setLayout(new BoxLayout(phoneInfo, BoxLayout.Y_AXIS));
+    phoneInfo.setBackground(new Color(255, 245, 238));
 
-        JLabel phoneNumber = new JLabel("0396 294 644");
-        phoneNumber.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        JLabel phoneType = new JLabel("Di động");
-        phoneType.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        phoneType.setForeground(Color.GRAY);
+    // Sử dụng JTextField thay vì JLabel để hiển thị số điện thoại
+    JTextField phoneNumberField = new JTextField(phone);
+    phoneNumberField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+    phoneNumberField.setBorder(BorderFactory.createEmptyBorder()); // Xóa viền mặc định
+    phoneNumberField.setBackground(new Color(255, 245, 238)); // Màu nền trùng với panel
+    phoneNumberField.setEditable(true); // Cho phép nhập liệu
+    phoneNumberField.setCaretColor(Color.BLACK); // Màu con trỏ nhập liệu
 
-        phoneInfo.add(phoneNumber);
-        phoneInfo.add(Box.createRigidArea(new Dimension(0, 3)));
-        phoneInfo.add(phoneType);
+    JLabel phoneType = new JLabel("Di động");
+    phoneType.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+    phoneType.setForeground(Color.GRAY);
 
-        JPanel rightIcons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
-        rightIcons.setBackground(new Color(255, 245, 238));
+    phoneInfo.add(phoneNumberField);
+    phoneInfo.add(Box.createRigidArea(new Dimension(0, 3)));
+    phoneInfo.add(phoneType);
 
-        JLabel videoIcon = new JLabel("📹");
-        videoIcon.setFont(new Font("Segoe UI", Font.PLAIN, 20));
-        JLabel messageIcon = new JLabel("💬");
-        messageIcon.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+    JPanel rightIcons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
+    rightIcons.setBackground(new Color(255, 245, 238));
 
-        rightIcons.add(videoIcon);
-        rightIcons.add(messageIcon);
+    JLabel videoIcon = new JLabel("📹");
+    videoIcon.setFont(new Font("Segoe UI", Font.PLAIN, 20));
+    JLabel messageIcon = new JLabel("💬");
+    messageIcon.setFont(new Font("Segoe UI", Font.PLAIN, 20));
 
-        phonePanel.add(phoneIcon, BorderLayout.WEST);
-        phonePanel.add(phoneInfo, BorderLayout.CENTER);
-        phonePanel.add(rightIcons, BorderLayout.EAST);
+    rightIcons.add(videoIcon);
+    rightIcons.add(messageIcon);
 
-        return phonePanel;
-    }
+    phonePanel.add(phoneIcon, BorderLayout.WEST);
+    phonePanel.add(phoneInfo, BorderLayout.CENTER);
+    phonePanel.add(rightIcons, BorderLayout.EAST);
+
+    // Lưu thay đổi khi người dùng chỉnh sửa số điện thoại
+    phoneNumberField.addActionListener(e -> phone = phoneNumberField.getText());
+
+    return phonePanel;
+}
+
 
     private JPanel createInfoPanel(String icon, String info, String subInfo) {
         JPanel infoPanel = new JPanel();
@@ -415,14 +436,28 @@ private void addHoverEffect(JButton button, Color hoverColor, Color originalColo
     }
 
     private Color getContrastingColor(Color backgroundColor) {
-        int brightness = (int) (0.2126 * backgroundColor.getRed() + 0.7152 * backgroundColor.getGreen() + 0.0722 * backgroundColor.getBlue());
-        return brightness > 128 ? Color.BLACK : Color.WHITE;
+    if (backgroundColor == null) {
+        // Trường hợp nếu backgroundColor là null, gán màu mặc định
+        return Color.BLACK;
     }
 
+    int brightness = (int) (0.2126 * backgroundColor.getRed() + 0.7152 * backgroundColor.getGreen() + 0.0722 * backgroundColor.getBlue());
+    return brightness > 128 ? Color.BLACK : Color.WHITE;
+}
+
+
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            ChiTietLienLac chiTietLienLac = new ChiTietLienLac("Anh Của Trường", null);
-            chiTietLienLac.setVisible(true);
-        });
-    }
+    SwingUtilities.invokeLater(() -> {
+////        ChiTietLienLac chiTietLienLac = new ChiTietLienLac(
+////            "Anh Của Trường",
+////             "0978697129",
+////            "danghuynhk@gmail.com",
+////            "123 Đường ABC, Quận X, Thành phố Y",
+////            "Liên hệ trong giờ hành chính",
+////            null
+////        );
+//        chiTietLienLac.setVisible(true);
+    });
+}
+
 } 
