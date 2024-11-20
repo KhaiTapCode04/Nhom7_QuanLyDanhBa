@@ -8,7 +8,6 @@ import java.awt.event.FocusEvent;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 public class TrangChu extends javax.swing.JFrame {
 
@@ -40,9 +39,82 @@ public class TrangChu extends javax.swing.JFrame {
                 }
             }
         });
+        
+        // Thêm sự kiện xử lý tìm kiếm cho txtBtnSearch và txtSearch
+        txtSearch.addActionListener(evt -> handleSearch()); // Tìm kiếm khi nhấn Enter trong txtSearch
+        txtBtnSearch.addActionListener(evt -> handleSearch()); // Tìm kiếm khi nhấn nút tìm kiếm
+
+        // Thêm sự kiện khi xóa tên tìm kiếm
+        txtSearch.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {
+                handleSearch();
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                // Nếu ô tìm kiếm trống, quay lại trang chủ
+                if (txtSearch.getText().trim().isEmpty() || txtSearch.getText().equals("Tìm kiếm...")) {
+                    addContactListToPanel();
+                }
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {
+                // Không cần xử lý thêm, nhưng vẫn phải implement để có thể chạy được
+            }
+        });
 
         // Thêm danh bạ vào giao diện
         addContactListToPanel();
+    }
+    
+        private void handleSearch() {
+        String searchQuery = txtSearch.getText().trim().toLowerCase();
+
+        if (searchQuery.isEmpty() || searchQuery.equals("Tìm kiếm...")) {
+            addContactListToPanel(); // Hiển thị lại toàn bộ danh bạ nếu tìm kiếm rỗng
+        } else {
+            filterContacts(searchQuery); // Lọc danh sách theo từ khóa tìm kiếm
+        }
+    }
+
+    private void filterContacts(String searchQuery) {
+        // Tạo panel chính chứa danh sách liên lạc
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 10, 30)); // Viền cho danh sách
+
+        // Tạo danh sách liên lạc mẫu
+        String[] contacts = {
+            "Nguyen Van A", "Tran Thi B", "Anh ba", "Le Van C", "Aham Van D",
+            "Doan Thi E", "Hoang Van F", "Bui Thi G", "Bguyen Van H"
+        };
+
+        // Sắp xếp danh sách liên lạc theo bảng chữ cái
+        Arrays.sort(contacts);
+
+        // Duyệt qua danh bạ và lọc theo từ khóa tìm kiếm
+        for (String contact : contacts) {
+            if (contact.toLowerCase().contains(searchQuery)) {
+                mainPanel.add(createContactItem(contact)); // Thêm liên lạc vào panel nếu tên chứa từ khóa
+                mainPanel.add(Box.createRigidArea(new Dimension(0, 30))); // Tăng khoảng cách giữa các liên lạc
+            }
+        }
+
+        if (mainPanel.getComponentCount() == 0) {
+            JLabel noResultsLabel = new JLabel("Không tìm thấy kết quả", SwingConstants.CENTER);
+            noResultsLabel.setFont(new Font("Arial", Font.ITALIC, 18));
+            mainPanel.add(noResultsLabel);
+        }
+
+        // Thêm Panel vào JScrollPane
+        JScrollPane scrollPane = new JScrollPane(mainPanel);
+        scrollPane.setPreferredSize(new Dimension(500, 400));
+
+        // Thêm JScrollPane vào txtHomeScroll
+        txtHomeScroll.setViewportView(scrollPane);
+        txtHomeScroll.setPreferredSize(new Dimension(500, 400)); // Đặt kích thước mong muốn cho JScrollPane
     }
 
     private void addContactListToPanel() {
@@ -75,7 +147,7 @@ public class TrangChu extends javax.swing.JFrame {
             contactGroup.add(createContactItem(contact));
 
             // Tạo một khoảng cách giữa các liên lạc trong cùng nhóm
-            contactGroup.add(Box.createRigidArea(new Dimension(0, 15)));
+            contactGroup.add(Box.createRigidArea(new Dimension(0, 30)));
         }
 
         // Duyệt qua các nhóm chữ cái và thêm vào panel chính
@@ -103,58 +175,56 @@ public class TrangChu extends javax.swing.JFrame {
         txtHomeScroll.setPreferredSize(new Dimension(500, 400)); // Đặt kích thước mong muốn cho JScrollPane
     }
 
-    public Color getContactColor(String contactName) {
-        return contactColors.get(contactName);
-    }
-
     private JPanel createContactItem(String contactName) {
-        // Lấy chữ cái đầu tiên của tên liên lạc
-        String firstLetter = contactName.substring(0, 1).toUpperCase();
+    // Lấy chữ cái đầu tiên của tên liên lạc
+    String firstLetter = contactName.substring(0, 1).toUpperCase();
 
-        // Tạo JLabel cho ô tròn
-        JLabel circleLabel = new JLabel(firstLetter, SwingConstants.CENTER);
-        circleLabel.setPreferredSize(new Dimension(100, 100));
-        circleLabel.setOpaque(true);
-        circleLabel.setFont(new Font("Arial", Font.BOLD, 30));
+    // Tạo JLabel cho ô tròn
+    JLabel circleLabel = new JLabel(firstLetter, SwingConstants.CENTER);
+    circleLabel.setPreferredSize(new Dimension(100, 100));
+    circleLabel.setOpaque(true);
+    circleLabel.setFont(new Font("Arial", Font.BOLD, 30));
 
-        // Thiết lập màu nền ngẫu nhiên cho JLabel
-        Color backgroundColor = getRandomColor();
-        circleLabel.setBackground(backgroundColor);
-        contactColors.put(contactName, backgroundColor); // Thêm dòng này
+    // Thiết lập màu nền ngẫu nhiên cho JLabel
+    Color backgroundColor = getRandomColor();
+    circleLabel.setBackground(backgroundColor);
+    contactColors.put(contactName, backgroundColor); // Thêm dòng này
 
-        // Chọn màu chữ (đen hoặc trắng) dựa trên độ sáng của màu nền
-        circleLabel.setForeground(getContrastingColor(backgroundColor));
+    // Chọn màu chữ (đen hoặc trắng) dựa trên độ sáng của màu nền
+    circleLabel.setForeground(getContrastingColor(backgroundColor));
 
-        // Đảm bảo kích thước JLabel là hình vuông
-        circleLabel.setMaximumSize(new Dimension(45, 45));
-        circleLabel.setMinimumSize(new Dimension(45, 45));
+    // Đảm bảo kích thước JLabel là hình vuông
+    circleLabel.setMaximumSize(new Dimension(45, 45));
+    circleLabel.setMinimumSize(new Dimension(45, 45));
 
-        // Tạo JLabel cho tên liên lạc
-        JLabel nameLabel = new JLabel(contactName);
-        nameLabel.setFont(new Font("Arial", Font.PLAIN, 28));
+    // Tạo JLabel cho tên liên lạc
+    JLabel nameLabel = new JLabel(contactName);
+    nameLabel.setFont(new Font("Arial", Font.PLAIN, 28));
 
-        // Gộp ô tròn và tên liên lạc vào một JPanel
-        JPanel contactPanel = new JPanel();
-        contactPanel.setLayout(new BoxLayout(contactPanel, BoxLayout.X_AXIS));
-        contactPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        contactPanel.add(circleLabel);
-        contactPanel.add(Box.createRigidArea(new Dimension(20, 0)));
-        contactPanel.add(nameLabel);
+    // Gộp ô tròn và tên liên lạc vào một JPanel
+    JPanel contactPanel = new JPanel();
+    contactPanel.setLayout(new BoxLayout(contactPanel, BoxLayout.X_AXIS));
+    contactPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+    contactPanel.add(circleLabel);
+    contactPanel.add(Box.createRigidArea(new Dimension(20, 0)));
+    contactPanel.add(nameLabel);
 
-        // Thêm sự kiện click để mở chi tiết liên lạc
-        contactPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                // Mở màn hình chi tiết liên lạc khi click
-                ChiTietLienLac chiTietLienLac = new ChiTietLienLac(contactName, TrangChu.this);
-                chiTietLienLac.setVisible(true);
+    contactPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+        public void mouseClicked(java.awt.event.MouseEvent evt) {
+            // Mở màn hình chi tiết liên lạc khi click
+            ChiTietLienLac chiTietLienLac = new ChiTietLienLac(contactName, TrangChu.this);
+            chiTietLienLac.setVisible(true);
 
-                // Ẩn màn hình chính
-                setVisible(false);
-            }
-        });
+            // Ẩn màn hình chính (Trang chủ)
+            setVisible(false);
+        }
+    });
 
-        return contactPanel;
-    }
+
+
+    return contactPanel;
+}
+
 
     // Hàm lấy màu chữ tương phản với nền (sáng hay tối)
     private Color getContrastingColor(Color backgroundColor) {
@@ -172,6 +242,12 @@ public class TrangChu extends javax.swing.JFrame {
         int g = (int) (Math.random() * 256);
         int b = (int) (Math.random() * 256);
         return new Color(r, g, b);
+    }
+    public Color getContactColor(String contactName) {
+    // Logic để lấy màu sắc của liên lạc dựa trên tên
+    // Ví dụ: trả về một màu ngẫu nhiên hoặc theo một quy tắc nào đó.
+    // Dưới đây, tôi sử dụng mã màu ngẫu nhiên cho mỗi liên lạc
+    return contactColors.getOrDefault(contactName, getRandomColor());  // Trả về màu đã lưu trong contactColors hoặc màu ngẫu nhiên
     }
 
     @SuppressWarnings("unchecked")
