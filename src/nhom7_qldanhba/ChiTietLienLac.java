@@ -31,7 +31,7 @@ public class ChiTietLienLac extends javax.swing.JFrame {
         this.address = address;
         this.note = note;
         this.trangChu = trangChu;
-        this.avatarColor = trangChu.getContactColor(contactName);
+        this.avatarColor = trangChu != null ? trangChu.getContactColor(contactName) : Color.GRAY; // Nếu trangChu là null
         initComponents();
     }
 
@@ -436,9 +436,15 @@ private void addHoverEffect(JButton button, Color hoverColor, Color originalColo
     }
 
     private Color getContrastingColor(Color backgroundColor) {
-        int brightness = (int) (0.2126 * backgroundColor.getRed() + 0.7152 * backgroundColor.getGreen() + 0.0722 * backgroundColor.getBlue());
-        return brightness > 128 ? Color.BLACK : Color.WHITE;
+    if (backgroundColor == null) {
+        // Trường hợp nếu backgroundColor là null, gán màu mặc định
+        return Color.BLACK;
     }
+
+    int brightness = (int) (0.2126 * backgroundColor.getRed() + 0.7152 * backgroundColor.getGreen() + 0.0722 * backgroundColor.getBlue());
+    return brightness > 128 ? Color.BLACK : Color.WHITE;
+}
+
 
     public static void main(String[] args) {
     SwingUtilities.invokeLater(() -> {
