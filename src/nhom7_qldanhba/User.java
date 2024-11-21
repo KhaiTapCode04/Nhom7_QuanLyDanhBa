@@ -8,9 +8,9 @@ public class User {
     private String address;
     private String note;
     private String createdAt;
-    private String avatar;
+    private byte[] avatar;
 
-    public User(int idUser, String username, String email, String address, String phone, String note, String createdAt, String avatar) {
+    public User(int idUser, String username, String email, String address, String phone, String note, String createdAt, byte[] avatar) {
         this.idUser = idUser;
         this.username = username;
         this.email = email;
@@ -27,5 +27,5 @@ public class User {
     public String getAddress() { return address; }
     public String getPhone() { return phone; }
     public String getNote() { return note; }
-    public String getAvatar() { return avatar; }
+    public byte[] getAvatar() { return avatar; }
 }
