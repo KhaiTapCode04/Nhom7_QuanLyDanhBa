@@ -32,7 +32,7 @@ public class ChiTietLienLac extends javax.swing.JFrame {
 
     
 
-    public ChiTietLienLac(String contactName, String phone, String email, String address, String note, byte[] avatarImagePath, TrangChu trangChu) {
+    public ChiTietLienLac(String contactName, String phone, String address, String email, String note, byte[] avatarImagePath, TrangChu trangChu) {
         this.contactName = contactName;
         this.email = email;
         this.phone = phone;

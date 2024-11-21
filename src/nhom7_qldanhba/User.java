@@ -10,7 +10,7 @@ public class User {
     private String createdAt;
     private byte[] avatar;
 
-    public User(int idUser, String username, String email, String address, String phone, String note, String createdAt, byte[] avatar) {
+    public User(int idUser, String username , String address, String email, String phone, String note, String createdAt, byte[] avatar) {
         this.idUser = idUser;
         this.username = username;
         this.email = email;
@@ -22,6 +22,7 @@ public class User {
     }
 
     // Getters
+    public int getIdUser() { return idUser; }
     public String getUsername() { return username; }
     public String getEmail() { return email; }
     public String getAddress() { return address; }

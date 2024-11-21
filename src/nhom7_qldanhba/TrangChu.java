@@ -24,7 +24,7 @@ public class TrangChu extends javax.swing.JFrame {
     public TrangChu() {
         initComponents();
         
-        // Lấy kết nối từ DatabaseConnection
+        
 
 
         // Đặt border bo tròn cho txtSearch
