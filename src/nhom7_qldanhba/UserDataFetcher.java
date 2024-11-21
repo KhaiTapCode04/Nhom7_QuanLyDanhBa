@@ -23,7 +23,7 @@ public class UserDataFetcher {
                 String address = resultSet.getString("address");
                 String note = resultSet.getString("note");
                 String createdAt = resultSet.getString("created_at");
-                String avatar = resultSet.getString("avatar");
+                byte[] avatar = resultSet.getBytes("avatar");
 
                 // Thêm đối tượng User vào danh sách
                 users.add(new User(idUser, username,address, email, phone, note, createdAt, avatar));
