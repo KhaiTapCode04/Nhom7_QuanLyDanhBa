@@ -438,6 +438,11 @@ public class TrangChu extends javax.swing.JFrame {
 
     private void txtAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtAddActionPerformed
         // TODO add your handling code here:
+        this.dispose(); // Hoặc bạn có thể sử dụng setVisible(false);
+
+        // Hiển thị JFrame của TrangChu
+        addContacts AddContacts = new addContacts();
+        AddContacts.setVisible(true);
     }//GEN-LAST:event_txtAddActionPerformed
 
     private void txtYeuThichActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtYeuThichActionPerformed
