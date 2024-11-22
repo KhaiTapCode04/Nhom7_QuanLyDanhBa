@@ -24,7 +24,7 @@ public class TrangChu extends javax.swing.JFrame {
     public TrangChu() {
         initComponents();
         
-        // Lấy kết nối từ DatabaseConnection
+        
 
 
         // Đặt border bo tròn cho txtSearch
@@ -222,6 +222,7 @@ public class TrangChu extends javax.swing.JFrame {
                 selectedUser.getAddress(),
                 selectedUser.getEmail(),
                 selectedUser.getNote(),
+                selectedUser.getAvatar(),
                 TrangChu.this
             );
             chiTietLienLac.setVisible(true);
@@ -232,7 +233,7 @@ public class TrangChu extends javax.swing.JFrame {
             System.out.println("Không tìm thấy thông tin của user: " + contactName);
         }
     }
-});
+    }); 
 
         return contactPanel;
     }
@@ -354,7 +355,6 @@ public class TrangChu extends javax.swing.JFrame {
         txtAdd.setBackground(new java.awt.Color(207, 207, 207));
         txtAdd.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
         txtAdd.setText("Thêm");
-        txtAdd.setSize(new java.awt.Dimension(105, 40));
         txtAdd.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtAddActionPerformed(evt);
@@ -364,7 +364,6 @@ public class TrangChu extends javax.swing.JFrame {
         txtDelete.setBackground(new java.awt.Color(207, 207, 207));
         txtDelete.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
         txtDelete.setText("Xoá");
-        txtDelete.setSize(new java.awt.Dimension(105, 40));
         txtDelete.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtDeleteActionPerformed(evt);
@@ -391,13 +390,13 @@ public class TrangChu extends javax.swing.JFrame {
                         .addComponent(txtBtnSearch)
                         .addGap(5, 5, 5))))
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(57, 57, 57)
                 .addComponent(txtYeuThich, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(53, 53, 53)
                 .addComponent(txtAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(54, 54, 54)
                 .addComponent(txtDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(62, 62, 62))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -408,15 +407,15 @@ public class TrangChu extends javax.swing.JFrame {
                     .addComponent(txtSearch)
                     .addComponent(txtBtnSearch, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtHomeScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 659, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(7, 7, 7)
+                .addComponent(txtHomeScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 485, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtYeuThich, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(17, Short.MAX_VALUE))
+                .addGap(123, 123, 123)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -427,27 +426,48 @@ public class TrangChu extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 705, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
-    
-    }//GEN-LAST:event_txtSearchActionPerformed
+    private void txtDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDeleteActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtDeleteActionPerformed
+
+    private void txtAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtAddActionPerformed
+        // TODO add your handling code here:
+        this.dispose(); // Hoặc bạn có thể sử dụng setVisible(false);
+
+        // Hiển thị JFrame của TrangChu
+        addContacts AddContacts = new addContacts();
+        AddContacts.setVisible(true);
+    }//GEN-LAST:event_txtAddActionPerformed
+
+    private void txtYeuThichActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtYeuThichActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtYeuThichActionPerformed
+
+    private void txtHomeScrollAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtHomeScrollAncestorAdded
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtHomeScrollAncestorAdded
 
     private void txtBtnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBtnSearchActionPerformed
-     String searchTerm = txtSearch.getText().trim().toUpperCase();
-    if (searchTerm.isEmpty() || searchTerm.equals("TÌM KIẾM...")) {
-        // Reset to original contact list if search is empty
-        addContactListToPanel();
-        return;
-    }
+        String searchTerm = txtSearch.getText().trim().toUpperCase();
+        if (searchTerm.isEmpty() || searchTerm.equals("TÌM KIẾM...")) {
+            // Reset to original contact list if search is empty
+            addContactListToPanel();
+            return;
+        }
 
-    // Perform search
-    performContactSearch(searchTerm);
+        // Perform search
+        performContactSearch(searchTerm);
     }//GEN-LAST:event_txtBtnSearchActionPerformed
+
+    private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
+
+    }//GEN-LAST:event_txtSearchActionPerformed
 
     private void performContactSearch(String searchTerm) {
     // Tạo panel chính chứa kết quả tìm kiếm
@@ -490,23 +510,7 @@ public class TrangChu extends javax.swing.JFrame {
     // Thêm JScrollPane vào txtHomeScroll
     txtHomeScroll.setViewportView(scrollPane);
     txtHomeScroll.setPreferredSize(new Dimension(500, 400));
-}
-    private void txtHomeScrollAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtHomeScrollAncestorAdded
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtHomeScrollAncestorAdded
-
-    private void txtYeuThichActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtYeuThichActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtYeuThichActionPerformed
-
-    private void txtAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtAddActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtAddActionPerformed
-
-    private void txtDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDeleteActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtDeleteActionPerformed
-    public class RoundedBorder extends AbstractBorder {
+}    public class RoundedBorder extends AbstractBorder {
 
         private int radius;
         private Color borderColor;
