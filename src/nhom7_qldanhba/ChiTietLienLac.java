@@ -6,6 +6,12 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.net.URL;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream; // Import cho ByteArrayInputStream
+import javax.imageio.ImageIO; 
+
 
 public class ChiTietLienLac extends javax.swing.JFrame {
 
@@ -15,8 +21,8 @@ public class ChiTietLienLac extends javax.swing.JFrame {
     private String phone;
     private String address;
     private String note;
+    private byte[] avatarImagePath;
 
-    private Color avatarColor;
     private JButton btnBack, btnEdit, btnStar, btnDelete;
     private JPanel actionButtonsPanel;
     private boolean isStarred = false;
@@ -24,14 +30,16 @@ public class ChiTietLienLac extends javax.swing.JFrame {
     private JLabel Header;
     
 
-    public ChiTietLienLac(String contactName,String phone, String email, String address, String note, TrangChu trangChu) {
+    
+
+    public ChiTietLienLac(String contactName, String phone, String email, String address, String note, byte[] avatarImagePath, TrangChu trangChu) {
         this.contactName = contactName;
         this.email = email;
         this.phone = phone;
         this.address = address;
         this.note = note;
         this.trangChu = trangChu;
-        this.avatarColor = trangChu != null ? trangChu.getContactColor(contactName) : Color.GRAY; // Nếu trangChu là null
+        this.avatarImagePath = avatarImagePath;
         initComponents();
     }
 
@@ -197,10 +205,16 @@ private void addHoverEffect(JButton button, Color hoverColor, Color originalColo
 
 
     private void createAvatarAndNamePanel(JPanel mainPanel) {
-        JPanel avatarPanel = createAvatarPanel();
+        // Lấy dữ liệu từ đối tượng User
+        byte[] avatarData = avatarImagePath; // Chuyển đổi từ String sang byte[], nếu cần sửa thêm ở lớp User
+
+
+        // Gọi phương thức createAvatarPanel với tham số
+        JPanel avatarPanel = createAvatarPanel(avatarData, contactName);
         mainPanel.add(avatarPanel);
         mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
+        // Tạo label cho tên liên hệ
         JLabel nameLabel = new JLabel(contactName);
         nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -209,16 +223,16 @@ private void addHoverEffect(JButton button, Color hoverColor, Color originalColo
     }
 
    private void createActionButtonsPanel(JPanel mainPanel) {
-    actionButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 40, 20));
+    actionButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 30));
     actionButtonsPanel.setBackground(Color.WHITE); // Nền của panel chính vẫn có thể giữ màu trắng
 
-  
-    
-    actionButtonsPanel.setBorder(BorderFactory.createEmptyBorder(-20, 0, -55, 0));
+    actionButtonsPanel.setBorder(BorderFactory.createEmptyBorder(-20, 15, -55, 0));
 
+    // Thêm các nút hành động
     addActionButton(actionButtonsPanel, "📞", "Gọi");
     addActionButton(actionButtonsPanel, "💬", "Nhắn tin");
     addActionButton(actionButtonsPanel, "📹", "Video");
+    addActionButton(actionButtonsPanel, "🚫", "Chặn"); 
 
     mainPanel.add(actionButtonsPanel);
     mainPanel.add(Box.createRigidArea(new Dimension(0, 40)));
@@ -392,72 +406,59 @@ private void addHoverEffect(JButton button, Color hoverColor, Color originalColo
             textLabel.setForeground(Color.DARK_GRAY); // Trở lại màu chữ gốc
         }
     });
-}
+    }
+   private JPanel createAvatarPanel(byte[] avatarData, String contactName) {
+        // Tạo CircularLabel cho avatar
+        CircularLabel avatarLabel = new CircularLabel(""); // Không có văn bản ban đầu
+        avatarLabel.setPreferredSize(new Dimension(190, 190)); // Kích thước avatar
 
-    private JPanel createAvatarPanel() {
-        JPanel avatarPanel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2d = (Graphics2D) g.create();
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        if (avatarData != null && avatarData.length > 0) {
+            try {
+                // Chuyển đổi byte[] thành ảnh
+                ByteArrayInputStream bis = new ByteArrayInputStream(avatarData);
+                BufferedImage avatarImage = ImageIO.read(bis);
 
-                String firstLetter = contactName.substring(0, 1).toUpperCase();
-
-                g2d.setColor(avatarColor);
-                g2d.fillOval(0, 0, getWidth() - 1, getHeight() - 1);
-
-                Color textColor = getContrastingColor(avatarColor);
-                g2d.setColor(textColor);
-                g2d.setFont(new Font("Segoe UI", Font.BOLD, 120));
-                FontMetrics fm = g2d.getFontMetrics();
-                int x = (getWidth() - fm.stringWidth(firstLetter)) / 2;
-                int y = ((getHeight() - fm.getHeight()) / 2) + fm.getAscent();
-                g2d.drawString(firstLetter, x, y);
-
-                g2d.dispose();
+                if (avatarImage != null) {
+                    // Đặt ảnh vào CircularLabel
+                    Image scaledAvatarImage = avatarImage.getScaledInstance(190, 190, Image.SCALE_SMOOTH); // Scale ảnh
+                    avatarLabel.setIcon(new ImageIcon(scaledAvatarImage));
+                    System.out.println("Đã tải avatar từ dữ liệu BLOB.");
+                } else {
+                    System.out.println("Dữ liệu avatar không phải là ảnh hợp lệ.");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Lỗi khi đọc dữ liệu avatar.");
             }
+        } else {
+            // Nếu không có ảnh, hiển thị chữ cái đầu
+            String firstLetter = contactName.substring(0, 1).toUpperCase();
+            avatarLabel.setText(firstLetter); // Đặt chữ cái đầu vào CircularLabel
+            System.out.println("Không có dữ liệu avatar, hiển thị chữ cái đầu.");
+        }
 
-            @Override
-            public Dimension getPreferredSize() {
-                return new Dimension(190, 190);
-            }
-
-            @Override
-            public boolean isOpaque() {
-                return false;
-            }
-        };
-
-        avatarPanel.setMaximumSize(new Dimension(190, 190));
-        avatarPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        avatarPanel.setOpaque(false);
+        // Tạo JPanel và thêm CircularLabel vào trong đó
+        JPanel avatarPanel = new JPanel();
+        avatarPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        avatarPanel.add(avatarLabel);
+        avatarPanel.setOpaque(false); // Làm trong suốt
 
         return avatarPanel;
     }
 
     private Color getContrastingColor(Color backgroundColor) {
-    if (backgroundColor == null) {
-        // Trường hợp nếu backgroundColor là null, gán màu mặc định
-        return Color.BLACK;
-    }
+        if (backgroundColor == null) {
+            // Trường hợp nếu backgroundColor là null, gán màu mặc định
+            return Color.BLACK;
+        }
 
-    int brightness = (int) (0.2126 * backgroundColor.getRed() + 0.7152 * backgroundColor.getGreen() + 0.0722 * backgroundColor.getBlue());
-    return brightness > 128 ? Color.BLACK : Color.WHITE;
-}
+        int brightness = (int) (0.2126 * backgroundColor.getRed() + 0.7152 * backgroundColor.getGreen() + 0.0722 * backgroundColor.getBlue());
+        return brightness > 128 ? Color.BLACK : Color.RED;
+    }
 
 
     public static void main(String[] args) {
-    SwingUtilities.invokeLater(() -> {
-////        ChiTietLienLac chiTietLienLac = new ChiTietLienLac(
-////            "Anh Của Trường",
-////             "0978697129",
-////            "danghuynhk@gmail.com",
-////            "123 Đường ABC, Quận X, Thành phố Y",
-////            "Liên hệ trong giờ hành chính",
-////            null
-////        );
-//        chiTietLienLac.setVisible(true);
-    });
-}
+//   
+    }
 
 } 
