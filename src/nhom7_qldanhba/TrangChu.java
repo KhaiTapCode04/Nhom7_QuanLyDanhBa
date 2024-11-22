@@ -222,6 +222,7 @@ public class TrangChu extends javax.swing.JFrame {
                 selectedUser.getAddress(),
                 selectedUser.getEmail(),
                 selectedUser.getNote(),
+                selectedUser.getAvatar(),
                 TrangChu.this
             );
             chiTietLienLac.setVisible(true);
@@ -232,7 +233,7 @@ public class TrangChu extends javax.swing.JFrame {
             System.out.println("Không tìm thấy thông tin của user: " + contactName);
         }
     }
-});
+    }); 
 
         return contactPanel;
     }
@@ -282,8 +283,8 @@ public class TrangChu extends javax.swing.JFrame {
         txtBtnSearch = new javax.swing.JButton();
         txtHomeScroll = new javax.swing.JScrollPane();
         jSeparator1 = new javax.swing.JSeparator();
-        txtYeuThich = new javax.swing.JButton();
-        txtAdd = new javax.swing.JButton();
+        ExportBtn = new javax.swing.JButton();
+        AddDanhba = new javax.swing.JButton();
         txtDelete = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -342,22 +343,22 @@ public class TrangChu extends javax.swing.JFrame {
             }
         });
 
-        txtYeuThich.setBackground(new java.awt.Color(207, 207, 207));
-        txtYeuThich.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
-        txtYeuThich.setText("Yêu Thích");
-        txtYeuThich.addActionListener(new java.awt.event.ActionListener() {
+        ExportBtn.setBackground(new java.awt.Color(207, 207, 207));
+        ExportBtn.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
+        ExportBtn.setText("Xuất File");
+        ExportBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtYeuThichActionPerformed(evt);
+                ExportBtnActionPerformed(evt);
             }
         });
 
-        txtAdd.setBackground(new java.awt.Color(207, 207, 207));
-        txtAdd.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
-        txtAdd.setText("Thêm");
-        txtAdd.setSize(new java.awt.Dimension(105, 40));
-        txtAdd.addActionListener(new java.awt.event.ActionListener() {
+        AddDanhba.setBackground(new java.awt.Color(207, 207, 207));
+        AddDanhba.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
+        AddDanhba.setText("Thêm");
+        AddDanhba.setSize(new java.awt.Dimension(105, 40));
+        AddDanhba.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtAddActionPerformed(evt);
+                AddDanhbaActionPerformed(evt);
             }
         });
 
@@ -365,11 +366,6 @@ public class TrangChu extends javax.swing.JFrame {
         txtDelete.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
         txtDelete.setText("Xoá");
         txtDelete.setSize(new java.awt.Dimension(105, 40));
-        txtDelete.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtDeleteActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -392,9 +388,9 @@ public class TrangChu extends javax.swing.JFrame {
                         .addGap(5, 5, 5))))
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(txtYeuThich, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(ExportBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(53, 53, 53)
-                .addComponent(txtAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(AddDanhba, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(54, 54, 54)
                 .addComponent(txtDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(62, 62, 62))
@@ -413,8 +409,8 @@ public class TrangChu extends javax.swing.JFrame {
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(7, 7, 7)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtYeuThich, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(AddDanhba, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ExportBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(17, Short.MAX_VALUE))
         );
@@ -490,22 +486,25 @@ public class TrangChu extends javax.swing.JFrame {
     // Thêm JScrollPane vào txtHomeScroll
     txtHomeScroll.setViewportView(scrollPane);
     txtHomeScroll.setPreferredSize(new Dimension(500, 400));
-}
+    }
+    
     private void txtHomeScrollAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtHomeScrollAncestorAdded
         // TODO add your handling code here:
     }//GEN-LAST:event_txtHomeScrollAncestorAdded
 
-    private void txtYeuThichActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtYeuThichActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtYeuThichActionPerformed
+    private void ExportBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExportBtnActionPerformed
+         this.dispose(); // Đóng JFrame hiện tại (TrangChu)
+    xuatFileCSV XuatFileCSV = new xuatFileCSV();
+    XuatFileCSV.setVisible(true); // Hiển thị JFrame mới
+    }//GEN-LAST:event_ExportBtnActionPerformed
 
-    private void txtAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtAddActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtAddActionPerformed
+    private void AddDanhbaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddDanhbaActionPerformed
+         this.dispose(); // Hoặc bạn có thể sử dụng setVisible(false);
 
-    private void txtDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDeleteActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtDeleteActionPerformed
+        // Hiển thị JFrame của TrangChu
+        addContacts AddContacts = new addContacts();
+        AddContacts.setVisible(true);
+    }//GEN-LAST:event_AddDanhbaActionPerformed
     public class RoundedBorder extends AbstractBorder {
 
         private int radius;
@@ -540,15 +539,15 @@ public class TrangChu extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton AddDanhba;
+    private javax.swing.JButton ExportBtn;
     private javax.swing.JLabel Header;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JButton txtAdd;
     private javax.swing.JButton txtBtnSearch;
     private javax.swing.JButton txtDelete;
     private javax.swing.JScrollPane txtHomeScroll;
     private javax.swing.JTextField txtSearch;
-    private javax.swing.JButton txtYeuThich;
     // End of variables declaration//GEN-END:variables
 }
