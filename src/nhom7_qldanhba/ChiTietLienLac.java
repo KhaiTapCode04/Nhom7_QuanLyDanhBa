@@ -11,17 +11,23 @@ import java.net.URL;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream; // Import cho ByteArrayInputStream
 import javax.imageio.ImageIO; 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.io.IOException;
 
 
 public class ChiTietLienLac extends javax.swing.JFrame {
 
     private TrangChu trangChu;
+    private int idUser;
     private String contactName;
     private String email;
     private String phone;
     private String address;
     private String note;
     private byte[] avatarImagePath;
+    private boolean isBlock;
 
     private JButton btnBack, btnEdit, btnStar, btnDelete;
     private JPanel actionButtonsPanel;
@@ -32,7 +38,8 @@ public class ChiTietLienLac extends javax.swing.JFrame {
 
     
 
-    public ChiTietLienLac(String contactName, String phone, String email, String address, String note, byte[] avatarImagePath, TrangChu trangChu) {
+    public ChiTietLienLac( int idUser, String contactName, String phone, String email, String address, String note, byte[] avatarImagePath, boolean isBlock, TrangChu trangChu) {
+        this.idUser = idUser;
         this.contactName = contactName;
         this.email = email;
         this.phone = phone;
@@ -40,9 +47,11 @@ public class ChiTietLienLac extends javax.swing.JFrame {
         this.note = note;
         this.trangChu = trangChu;
         this.avatarImagePath = avatarImagePath;
+        this.isBlock = isBlock;
         initComponents();
     }
 
+    
 
     private void initComponents() {
         // Khởi tạo các components chính
@@ -137,70 +146,79 @@ public class ChiTietLienLac extends javax.swing.JFrame {
         pack();
         setLocationRelativeTo(null); // Căn giữa màn hình
     }
+    
+    
 
     private void createNavigationPanel(JPanel mainPanel) {
-    JPanel navPanel = new JPanel(new BorderLayout());
-    navPanel.setBackground(Color.WHITE);
+        JPanel navPanel = new JPanel(new BorderLayout());
+        navPanel.setBackground(Color.WHITE);
 
-    // Đặt kích thước cho navPanel sao cho không gian được phân phối hợp lý
-    navPanel.setPreferredSize(new Dimension(mainPanel.getWidth(), 50));
-    navPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 500));
+        // Đặt kích thước cho navPanel sao cho không gian được phân phối hợp lý
+        navPanel.setPreferredSize(new Dimension(mainPanel.getWidth(), 50));
+        navPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 500));
 
-    // Nút quay lại (btnBack) nằm sát trái
-    btnBack = createIconButton("←", 50);
-    btnBack.addActionListener(e -> {
-        if (trangChu != null) {
-            trangChu.setVisible(true);
-        }
-        dispose();
-    });
+        // Nút quay lại (btnBack) nằm sát trái
+        btnBack = createIconButton("←", 50);
+        btnBack.addActionListener(e -> {
+            if (trangChu != null) {
+                trangChu.setVisible(true);
+            }
+            dispose();
+        });
 
-    // Thêm nút quay lại vào navPanel ở phía Tây (sát trái)
-    navPanel.add(btnBack, BorderLayout.WEST);
-    btnBack.setBorder(BorderFactory.createEmptyBorder(-20, 0, 0, -10)); // Loại bỏ lề xung quanh btnBack
+        // Thêm nút quay lại vào navPanel ở phía Tây (sát trái)
+        navPanel.add(btnBack, BorderLayout.WEST);
+        btnBack.setBorder(BorderFactory.createEmptyBorder(-20, 0, 0, -10)); // Loại bỏ lề xung quanh btnBack
 
-    // Các nút bên phải (edit, star, delete)
-    JPanel rightButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, -15, 0));
-    rightButtons.setBackground(Color.WHITE);
-    rightButtons.setBorder(BorderFactory.createEmptyBorder(-12, 0, 0, 0));
+        // Các nút bên phải (edit, star, delete)
+        JPanel rightButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, -15, 0));
+        rightButtons.setBackground(Color.WHITE);
+        rightButtons.setBorder(BorderFactory.createEmptyBorder(-12, 0, 0, 0));
 
-    btnEdit = createIconButton("✎", 45);  // Nút chỉnh sửa
-    btnStar = createIconButton("☆", 40);   // Nút đánh dấu
-    btnDelete = createIconButton("Xoá", 30); // Nút thùng rác (biểu tượng Unicode)
- 
-    // Thêm hiệu ứng đổi màu cho các nút
-    addHoverEffect(btnEdit, new Color(0, 122, 204), Color.DARK_GRAY);
-    addHoverEffect(btnStar, new Color(0, 122, 204), Color.DARK_GRAY);
-    addHoverEffect(btnDelete, new Color(231, 76, 60), Color.DARK_GRAY); // Màu cho thùng rác
+        btnEdit = createIconButton("✎", 45);  // Nút chỉnh sửa
+        btnStar = createIconButton("☆", 40);   // Nút đánh dấu
+        btnDelete = createIconButton("Xoá", 30); // Nút thùng rác (biểu tượng Unicode)
 
-    rightButtons.add(btnEdit);
-    rightButtons.add(btnStar);
-    rightButtons.add(btnDelete);
+        // Thêm hiệu ứng đổi màu cho các nút
+        addHoverEffect(btnEdit, new Color(0, 122, 204), Color.DARK_GRAY);
+        addHoverEffect(btnStar, new Color(0, 122, 204), Color.DARK_GRAY);
+        addHoverEffect(btnDelete, new Color(231, 76, 60), Color.DARK_GRAY); // Màu cho thùng rác
 
-    // Thêm các nút vào phía Đông (sát phải)
-    navPanel.add(rightButtons, BorderLayout.CENTER);
+        rightButtons.add(btnEdit);
+        rightButtons.add(btnStar);
+        rightButtons.add(btnDelete);
 
-    // Thêm navPanel vào mainPanel
-    mainPanel.add(navPanel, BorderLayout.NORTH);
-    mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
-}
+        // Thêm các nút vào phía Đông (sát phải)
+        navPanel.add(rightButtons, BorderLayout.CENTER);
 
-// Phương thức thêm hiệu ứng đổi màu cho nút
-private void addHoverEffect(JButton button, Color hoverColor, Color originalColor) {
-    button.setForeground(originalColor); // Đặt màu chữ ban đầu
+        // Thêm navPanel vào mainPanel
+        mainPanel.add(navPanel, BorderLayout.NORTH);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
-    button.addMouseListener(new MouseAdapter() {
-        @Override
-        public void mouseEntered(MouseEvent e) {
-            button.setForeground(hoverColor); // Đổi màu khi di chuột vào
-        }
+        // Thêm ActionListener cho btnEdit để hiển thị trang EditContacts
+        btnEdit.addActionListener(e -> {
+            editContacts EditContactsPage = new editContacts(idUser, contactName, phone, email, address, note, avatarImagePath);
+            EditContactsPage.setVisible(true);  // Mở trang chỉnh sửa
+            dispose();  // Đóng cửa sổ hiện tại nếu cần
+        });
+    }
 
-        @Override
-        public void mouseExited(MouseEvent e) {
-            button.setForeground(originalColor); // Trở lại màu ban đầu khi rời chuột
-        }
-    });
-}
+       // Phương thức thêm hiệu ứng đổi màu cho nút
+    private void addHoverEffect(JButton button, Color hoverColor, Color originalColor) {
+        button.setForeground(originalColor); // Đặt màu chữ ban đầu
+
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setForeground(hoverColor); // Đổi màu khi di chuột vào
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setForeground(originalColor); // Trở lại màu ban đầu khi rời chuột
+            }
+        });
+    }
 
 
 
@@ -222,21 +240,91 @@ private void addHoverEffect(JButton button, Color hoverColor, Color originalColo
         mainPanel.add(Box.createRigidArea(new Dimension(0, 30)));
     }
 
-   private void createActionButtonsPanel(JPanel mainPanel) {
-    actionButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 30));
-    actionButtonsPanel.setBackground(Color.WHITE); // Nền của panel chính vẫn có thể giữ màu trắng
+    private JPanel blockButtonPanel; // Tham chiếu đến nút "Chặn"
 
-    actionButtonsPanel.setBorder(BorderFactory.createEmptyBorder(-20, 15, -55, 0));
+    private void createActionButtonsPanel(JPanel mainPanel) {
+        actionButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 30));
+        actionButtonsPanel.setBackground(Color.WHITE); 
 
-    // Thêm các nút hành động
-    addActionButton(actionButtonsPanel, "📞", "Gọi");
-    addActionButton(actionButtonsPanel, "💬", "Nhắn tin");
-    addActionButton(actionButtonsPanel, "📹", "Video");
-    addActionButton(actionButtonsPanel, "🚫", "Chặn"); 
+        actionButtonsPanel.setBorder(BorderFactory.createEmptyBorder(-20, 15, -55, 0));
 
-    mainPanel.add(actionButtonsPanel);
-    mainPanel.add(Box.createRigidArea(new Dimension(0, 40)));
-}
+        // Các nút khác
+        addActionButton(actionButtonsPanel, "📞", "Gọi", () -> System.out.println("Gọi!"));
+        addActionButton(actionButtonsPanel, "💬", "Nhắn tin", () -> System.out.println("Nhắn tin!"));
+        addActionButton(actionButtonsPanel, "📹", "Video", () -> System.out.println("Video!"));
+
+        // Nút "Chặn"
+        blockButtonPanel = new JPanel(); // Tạo tham chiếu
+        addActionButton(
+            blockButtonPanel,
+            "🚫",
+            isBlock ? "Đã chặn" : "Chặn",
+            () -> toggleBlockStatus() // Gọi hàm đổi trạng thái khi nhấp
+        );
+        actionButtonsPanel.add(blockButtonPanel);
+
+        mainPanel.add(actionButtonsPanel);
+        mainPanel.add(Box.createRigidArea(new Dimension(0, 40)));
+    }
+
+    
+    private void updateDatabase(boolean isBlock, int idUser) {
+        Connection connection = DatabaseConnection.connect();
+        if (connection != null) {
+            // Sử dụng UPDATE thay vì INSERT
+            String sql = "UPDATE user SET isBlock = ? WHERE idUser = ?";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setBoolean(1, isBlock);
+                preparedStatement.setInt(2, idUser); // Điều kiện WHERE để xác định người dùng cụ thể
+
+                int rowsAffected = preparedStatement.executeUpdate();
+                if (rowsAffected > 0) {
+                    String message = isBlock ? "Đã chặn thành công!" : "Đã bỏ chặn!";
+                    JOptionPane.showMessageDialog(this, message);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Cập nhật trạng thái thất bại!");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Lỗi khi cập nhật trạng thái: " + e.getMessage());
+            } finally {
+                DatabaseConnection.close(connection);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Không thể kết nối đến cơ sở dữ liệu!");
+        }
+    }
+
+    
+        private void toggleBlockStatus() {
+        isBlock = !isBlock; // Đổi trạng thái
+        updateDatabase(isBlock, idUser); // Cập nhật cơ sở dữ liệu
+        updateBlockButton(); // Cập nhật giao diện nút
+    }
+        
+        private void updateBlockButton() {
+            if (blockButtonPanel != null) {
+                // Lấy các thành phần trong blockButtonPanel
+                JPanel innerPanel = (JPanel) blockButtonPanel.getComponent(0); // panel bên trong buttonPanel
+                JLabel iconLabel = (JLabel) innerPanel.getComponent(0); // Icon label
+                JLabel textLabel = (JLabel) innerPanel.getComponent(2); // Text label
+
+                // Cập nhật nội dung hiển thị
+                textLabel.setText(isBlock ? "Đã chặn" : "Chặn");
+                textLabel.setForeground(isBlock ? Color.RED : Color.DARK_GRAY);
+                iconLabel.setText("🚫");
+
+                // Làm mới nút "Chặn"
+                blockButtonPanel.revalidate();
+                blockButtonPanel.repaint();
+            }
+        }
+
+
+
+
+
+
 
     private void createContactInfoPanel(JPanel mainPanel) {
         JPanel infoPanel = new JPanel();
@@ -366,47 +454,56 @@ private void addHoverEffect(JButton button, Color hoverColor, Color originalColo
         button.setBorderPainted(false);
         button.setContentAreaFilled(false);
         button.setFocusPainted(false);
- button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-    // Xóa ô vuông bên cạnh biểu tượng
-    button.setFocusPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+           // Xóa ô vuông bên cạnh biểu tượng
+           button.setFocusPainted(false);
         return button;
     }
 
-   private void addActionButton(JPanel panel, String icon, String text) {
-    JPanel buttonPanel = new JPanel();
-    buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
-    buttonPanel.setBackground(new Color(0, 0, 0, 0)); // Đặt nền trong suốt
-    buttonPanel.setPreferredSize(new Dimension(100, 100));
-    buttonPanel.setOpaque(false); // Đảm bảo panel trong suốt
+   private void addActionButton(JPanel panel, String icon, String text, Runnable onClickAction) {
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+        buttonPanel.setBackground(new Color(0, 0, 0, 0)); // Đặt nền trong suốt
+        buttonPanel.setPreferredSize(new Dimension(100, 100));
+        buttonPanel.setOpaque(false); // Đảm bảo panel trong suốt
 
-    JLabel iconLabel = new JLabel(icon);
-    iconLabel.setFont(new Font("Segoe UI", Font.PLAIN, 30));
-    iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JLabel iconLabel = new JLabel(icon);
+        iconLabel.setFont(new Font("Segoe UI", Font.PLAIN, 30));
+        iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-    JLabel textLabel = new JLabel(text);
-    textLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-    textLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-    textLabel.setForeground(Color.DARK_GRAY);
+        JLabel textLabel = new JLabel(text);
+        textLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        textLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        textLabel.setForeground(Color.DARK_GRAY);
 
-    buttonPanel.add(iconLabel);
-    buttonPanel.add(Box.createRigidArea(new Dimension(0, 5)));
-    buttonPanel.add(textLabel);
+        buttonPanel.add(iconLabel);
+        buttonPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+        buttonPanel.add(textLabel);
 
-    panel.add(buttonPanel);
+        panel.add(buttonPanel);
 
-    // Thêm hiệu ứng hover cho buttonPanel
-    buttonPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-        public void mouseEntered(java.awt.event.MouseEvent evt) {
-            iconLabel.setFont(new Font("Segoe UI", Font.BOLD, 35)); // Tăng kích thước icon
-            textLabel.setForeground(new Color(0, 122, 204)); // Thay đổi màu chữ
-        }
+        // Thêm hiệu ứng hover cho buttonPanel
+        buttonPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                iconLabel.setFont(new Font("Segoe UI", Font.BOLD, 35)); // Tăng kích thước icon
+                textLabel.setForeground(new Color(0, 122, 204)); // Thay đổi màu chữ
+            }
 
-        public void mouseExited(java.awt.event.MouseEvent evt) {
-            iconLabel.setFont(new Font("Segoe UI", Font.PLAIN, 30)); // Trở lại kích thước gốc
-            textLabel.setForeground(Color.DARK_GRAY); // Trở lại màu chữ gốc
-        }
-    });
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                iconLabel.setFont(new Font("Segoe UI", Font.PLAIN, 30)); // Trở lại kích thước gốc
+                textLabel.setForeground(Color.DARK_GRAY); // Trở lại màu chữ gốc
+            }
+
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (onClickAction != null) {
+                    onClickAction.run(); // Gọi hành động khi nhấp chuột
+                }
+            }
+        });
     }
+
+
+
    private JPanel createAvatarPanel(byte[] avatarData, String contactName) {
         // Tạo CircularLabel cho avatar
         CircularLabel avatarLabel = new CircularLabel(""); // Không có văn bản ban đầu

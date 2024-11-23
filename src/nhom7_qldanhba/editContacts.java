@@ -24,6 +24,8 @@ import java.sql.Timestamp; // Import the Timestamp class
 import java.io.FileInputStream;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.sql.ResultSet;
+import java.io.ByteArrayOutputStream;
 
 import java.awt.image.BufferedImage; // Để sử dụng BufferedImage
 import java.io.ByteArrayInputStream; // Để sử dụng ByteArrayInputStream
@@ -40,8 +42,14 @@ public class editContacts extends javax.swing.JFrame {
     private int contactId;
     private JLabel imageLabel; // Label to display the image
 
-    public editContacts(String name, String phone, String email, String address, String note, byte[] avatarImage) {
-        this.contactId = contactId; // Gán contactId cho biến class-level
+    public editContacts(int idUser, String name, String phone, String email, String address, String note, byte[] avatarImage) {
+        
+
+        
+        
+                                
+        
+        this.contactId = idUser; // Gán contactId cho biến class-level
         initComponents();
         setupImageLabel();
 
@@ -64,12 +72,6 @@ public class editContacts extends javax.swing.JFrame {
             imageLabel.setIcon(null); // Or set a default image
         }
 
-        // Set placeholders for input fields
-        setPlaceholder(this.name, "Tên");
-        setPlaceholder(this.addName2, "Họ");
-        setPlaceholder(this.address, "Địa chỉ");
-        setPlaceholder(this.phone, "Số điện thoại");
-        setPlaceholder(this.email, "Email");
         saveBTN.setBorder(null);
         backBTN.setBorder(null);
     }
@@ -168,8 +170,6 @@ public class editContacts extends javax.swing.JFrame {
         jTextField1 = new javax.swing.JTextField();
         jPanel4 = new javax.swing.JPanel();
         name = new javax.swing.JTextField();
-        jPanel5 = new javax.swing.JPanel();
-        addName2 = new javax.swing.JTextField();
         jPanel6 = new javax.swing.JPanel();
         address = new javax.swing.JTextField();
         jPanel7 = new javax.swing.JPanel();
@@ -257,35 +257,6 @@ public class editContacts extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jPanel5.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel5.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-
-        addName2.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        addName2.setActionCommand("<Not Set>");
-        addName2.setBorder(null);
-        addName2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addName2ActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
-        jPanel5.setLayout(jPanel5Layout);
-        jPanel5Layout.setHorizontalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(addName2, javax.swing.GroupLayout.PREFERRED_SIZE, 433, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-        );
-        jPanel5Layout.setVerticalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(addName2, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
         jPanel6.setBackground(new java.awt.Color(255, 255, 255));
         jPanel6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
@@ -360,10 +331,10 @@ public class editContacts extends javax.swing.JFrame {
         jPanel8.setLayout(jPanel8Layout);
         jPanel8Layout.setHorizontalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel8Layout.createSequentialGroup()
-                .addGap(14, 14, 14)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel8Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(email, javax.swing.GroupLayout.PREFERRED_SIZE, 432, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel8Layout.setVerticalGroup(
             jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -411,20 +382,19 @@ public class editContacts extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(17, 17, 17)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane2)
                     .addComponent(addNewPhone)
                     .addComponent(addNewPhone1)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(25, Short.MAX_VALUE))
+                    .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(180, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGap(6, 6, 6)
@@ -442,38 +412,42 @@ public class editContacts extends javax.swing.JFrame {
                     .addComponent(backBTN, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel2)
                 .addGap(39, 39, 39)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(27, 27, 27)
+                .addGap(18, 18, 18)
                 .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(addNewPhone)
                 .addGap(18, 18, 18)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jTextField1)
-                    .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(addNewPhone)
-                .addGap(36, 36, 36)
-                .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
                 .addComponent(addNewPhone1)
-                .addGap(27, 27, 27)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(22, 22, 22))
+                .addGap(138, 138, 138))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 791, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(27, 27, 27))
         );
 
         pack();
@@ -484,17 +458,32 @@ public class editContacts extends javax.swing.JFrame {
     }//GEN-LAST:event_nameActionPerformed
 
     private void saveBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveBTNActionPerformed
-       // Lấy dữ liệu từ các trường nhập liệu
         // Lấy dữ liệu từ các trường nhập liệu
         String nameValue = name.getText();
-        String addName2Value = addName2.getText();
         String addressValue = address.getText();
         String phoneValue = phone.getText();
         String emailValue = email.getText();
         String noteValue = note.getText();
 
-        // Chuyển đổi ảnh thành byte[] nếu cần
-        byte[] avatarImage = null; // Bạn có thể chuyển đổi file ảnh thành byte[] ở đây nếu cần
+        byte[] avatarImage = null;
+
+        // Kiểm tra nếu người dùng đã chọn tệp ảnh mới
+        if (selectedImageFile != null) {
+            try {
+                // Chuyển đổi ảnh thành byte[]
+                BufferedImage img = ImageIO.read(selectedImageFile);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageIO.write(img, "png", baos); // Lưu ảnh ở định dạng PNG
+                avatarImage = baos.toByteArray();
+            } catch (IOException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Lỗi khi xử lý tệp ảnh: " + e.getMessage());
+                return; // Thoát nếu gặp lỗi
+            }
+        } else {
+            // Nếu không có tệp ảnh mới, sử dụng avatar hiện tại
+            avatarImage = getCurrentAvatarFromDatabase(); // Lấy avatar hiện tại từ database
+        }
 
         // Kết nối tới cơ sở dữ liệu
         Connection connection = null;
@@ -505,7 +494,7 @@ public class editContacts extends javax.swing.JFrame {
             connection = DatabaseConnection.connect();
 
             // Câu lệnh SQL để cập nhật dữ liệu
-            String sql = "UPDATE contacts SET name = ?, phone = ?, email = ?, address = ?, note = ?, avatar = ? WHERE id = ?"; // Thay đổi bảng và cột theo cơ sở dữ liệu của bạn
+            String sql = "UPDATE user SET username = ?, phone = ?, email = ?, address = ?, note = ?, avatar = ? WHERE idUSer = ?"; 
             preparedStatement = connection.prepareStatement(sql);
 
             // Thiết lập các tham số cho câu lệnh SQL
@@ -514,8 +503,8 @@ public class editContacts extends javax.swing.JFrame {
             preparedStatement.setString(3, emailValue);
             preparedStatement.setString(4, addressValue);
             preparedStatement.setString(5, noteValue);
-            preparedStatement.setBytes(6, avatarImage); // Nếu có ảnh
-            preparedStatement.setInt(7, contactId); // Giả sử bạn có biến contactId để xác định liên hệ cần cập nhật
+            preparedStatement.setBytes(6, avatarImage); // Đặt avatar hiện tại hoặc ảnh mới
+            preparedStatement.setInt(7, contactId);
 
             // Thực thi câu lệnh cập nhật
             int rowsUpdated = preparedStatement.executeUpdate();
@@ -542,10 +531,41 @@ public class editContacts extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_saveBTNActionPerformed
 
-    private void addName2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addName2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_addName2ActionPerformed
+    private byte[] getCurrentAvatarFromDatabase() {
+        // Kết nối tới cơ sở dữ liệu để lấy avatar hiện tại
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
 
+        try {
+            connection = DatabaseConnection.connect();
+            String sql = "SELECT avatar FROM user WHERE idUSer = ?";
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, contactId);
+
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getBytes("avatar");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi khi lấy avatar hiện tại: " + e.getMessage());
+        } finally {
+            DatabaseConnection.close(connection);
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null; // Nếu không lấy được ảnh, trả về null
+    }
     private void addressActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addressActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_addressActionPerformed
@@ -674,7 +694,7 @@ public class editContacts extends javax.swing.JFrame {
                 java.awt.EventQueue.invokeLater(new Runnable() {
                 public void run() {
                     // Chắc chắn rằng bạn đã truyền tham số nếu cần
-                    new editContacts("Tên mặc định", "Số điện thoại mặc định", "Email mặc định", "Địa chỉ mặc định", "Ghi chú mặc định", null).setVisible(true);
+//                    new editContacts("Tên mặc định", "Số điện thoại mặc định", "Email mặc định", "Địa chỉ mặc định", "Ghi chú mặc định", null).setVisible(true);
                     }
                 });
             }
@@ -682,7 +702,6 @@ public class editContacts extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField addName2;
     private javax.swing.JLabel addNewPhone;
     private javax.swing.JLabel addNewPhone1;
     private javax.swing.JTextField address;
@@ -694,7 +713,6 @@ public class editContacts extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;

@@ -217,12 +217,14 @@ public class TrangChu extends javax.swing.JFrame {
         if (selectedUser != null) {
             // Mở màn hình chi tiết liên lạc với thông tin từ user
             ChiTietLienLac chiTietLienLac = new ChiTietLienLac(
+                selectedUser.getIdUser(),
                 selectedUser.getUsername(),  
                 selectedUser.getPhone(),
-                selectedUser.getAddress(),
                 selectedUser.getEmail(),
+                selectedUser.getAddress(),
                 selectedUser.getNote(),
                 selectedUser.getAvatar(),
+                selectedUser.getIsBlock(),
                 TrangChu.this
             );
             chiTietLienLac.setVisible(true);
@@ -494,8 +496,8 @@ public class TrangChu extends javax.swing.JFrame {
 
     private void ExportBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExportBtnActionPerformed
          this.dispose(); // Đóng JFrame hiện tại (TrangChu)
-    xuatFileCSV XuatFileCSV = new xuatFileCSV();
-    XuatFileCSV.setVisible(true); // Hiển thị JFrame mới
+            xuatFileCSV XuatFileCSV = new xuatFileCSV();
+            XuatFileCSV.setVisible(true); // Hiển thị JFrame mới
     }//GEN-LAST:event_ExportBtnActionPerformed
 
     private void AddDanhbaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddDanhbaActionPerformed
