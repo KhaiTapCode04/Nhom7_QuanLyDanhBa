@@ -21,9 +21,13 @@ import java.sql.Connection; // Import the Connection class
 import java.sql.PreparedStatement; // Import the PreparedStatement class
 import java.sql.SQLException; // Import the SQLException class
 import java.sql.Timestamp; // Import the Timestamp class
+import javax.swing.Timer; // Thêm import Timer
 import java.io.FileInputStream;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.util.regex.Pattern;
+import javax.swing.border.LineBorder; // Để sử dụng LineBorder
+import java.awt.Color; // Để sử dụng Color
 
 public class addContacts extends javax.swing.JFrame {
     private File selectedImageFile; // Class-level variable to hold the selected image file
@@ -31,7 +35,7 @@ public class addContacts extends javax.swing.JFrame {
      * Creates new form editContracts
      */
     private JLabel imageLabel; // Label to display the image
-
+    
     public addContacts() {
         initComponents();
         setupImageLabel();
@@ -42,6 +46,49 @@ public class addContacts extends javax.swing.JFrame {
         setPlaceholder(addEmail, "Email");
         addBTN.setBorder(null); // Xóa border
         backBTN.setBorder(null); // Xóa border
+        
+        // Thêm DocumentListener cho số điện thoại
+        addPhone.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) {
+                validatePhone(addPhone.getText().trim());
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                validatePhone(addPhone.getText().trim());
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                validatePhone(addPhone.getText().trim());
+            }
+        });
+        
+        addName1.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) {
+                validateName(addName1.getText().trim());
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                validateName(addName1.getText().trim());
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                validateName(addName1.getText().trim());
+            }
+        });
+
+       // Thêm FocusListener cho email
+        addEmail.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                // Chỉ kiểm tra nếu email không rỗng
+                if (!addEmail.getText().trim().isEmpty()) {
+                    validateEmail(addEmail.getText().trim());
+                } else {
+                    // Nếu email rỗng, đặt viền về màu xám
+                    jPanel8.setBorder(new LineBorder(Color.GRAY, 1));
+                }
+            }
+        });
     }
 
     private void setupImageLabel() {
@@ -114,7 +161,39 @@ public class addContacts extends javax.swing.JFrame {
         return circularImage;
     }   
     
+    private void setPanelError(JPanel panel, boolean isError) {
+        if (isError) {
+            panel.setBorder(new LineBorder(Color.RED, 1)); // Đặt viền màu đỏ
+        } else {
+            panel.setBorder(new LineBorder(Color.BLACK, 1)); // Đặt viền về màu xám (hoặc màu mặc định)
+        }
+    }
+
+    private boolean validatePhone(String phone) {
+        boolean isValid = Pattern.matches("\\d+", phone);
+        setPanelError(jPanel7, !isValid); // Cập nhật màu viền cho jPanel7 nếu có lỗi
+        return isValid;
+    }
     
+    private boolean validateName(String username) {
+        boolean isValid = !username.trim().isEmpty(); // Kiểm tra xem tên không rỗng
+        setPanelError(jPanel4, !isValid); // Cập nhật màu viền cho jPanel4 nếu có lỗi
+        return isValid;
+    }
+
+    private boolean validateEmail(String email) {
+        boolean isValid = Pattern.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$", email);
+
+        JPanel emailPanel = jPanel8; // assuming jPanel8 is where the email JTextField is placed
+        if (!isValid && !email.isEmpty()) {
+            emailPanel.setBorder(new LineBorder(Color.RED, 1)); // Highlight in red
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đúng định dạng email");
+        } else {
+            emailPanel.setBorder(new LineBorder(Color.GRAY, 1)); // Revert to default on valid or empty
+        }
+
+        return isValid;
+    }
 
 
     /**
@@ -195,6 +274,11 @@ public class addContacts extends javax.swing.JFrame {
         jTextField1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         jTextField1.setText("+84");
         jTextField1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField1ActionPerformed(evt);
+            }
+        });
 
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
         jPanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -387,19 +471,19 @@ public class addContacts extends javax.swing.JFrame {
                         .addGap(177, 177, 177))))
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(17, 17, 17)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jScrollPane2)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(addNewPhone)
-                        .addComponent(addNewPhone1)
-                        .addGroup(jPanel2Layout.createSequentialGroup()
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addComponent(jPanel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jPanel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(jScrollPane2)
+                        .addComponent(addNewPhone, javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(addNewPhone1, javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jPanel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel8, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanel7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(25, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
@@ -412,15 +496,15 @@ public class addContacts extends javax.swing.JFrame {
                     .addComponent(backBTN, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel2)
-                .addGap(39, 39, 39)
+                .addGap(33, 33, 33)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(14, 14, 14)
                 .addComponent(addNewPhone)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -432,7 +516,7 @@ public class addContacts extends javax.swing.JFrame {
                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(81, 81, 81))
+                .addGap(73, 73, 73))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -443,7 +527,7 @@ public class addContacts extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 838, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
@@ -454,19 +538,44 @@ public class addContacts extends javax.swing.JFrame {
     }//GEN-LAST:event_addName1ActionPerformed
 
     private void addBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBTNActionPerformed
-            // TODO add your handling code here:
+        // TODO add your handling code here:
         String username = addName1.getText().trim(); // Tên
         String lastName = addName2.getText().trim(); // Họ
 
-        // Chỉ thêm họ vào username nếu lastName không rỗng và không phải là placeholder
+        // Kiểm tra nếu lastName không rỗng và không phải là placeholder
         if (!lastName.isEmpty() && !lastName.equals("Họ")) {
-        username += " " + lastName;
+            // Ghép họ (lastName) và tên (username) với họ đứng trước
+            username = lastName + " " + username;
         }
+        
         String email = addEmail.getText().trim();
         String phone = addPhone.getText().trim(); // Phone with country code
         String address = addAddress.getText().trim();
         String note = addNote.getText().trim();
         java.sql.Timestamp createdAt = new java.sql.Timestamp(System.currentTimeMillis());
+
+        // Kiểm tra tính hợp lệ của số điện thoại
+        boolean isPhoneValid = validatePhone(phone);
+
+        // Nếu số điện thoại không hợp lệ, dừng lại
+        if (!isPhoneValid) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đúng định dạng số điện thoại");
+            return; // Nếu có lỗi, không tiếp tục
+        }
+        
+        boolean isNameValid = validateName(username);
+
+        // Kiểm tra nếu username là placeholder
+        if (username.equals("Tên")) {
+            isNameValid = false;
+        }
+
+        // Nếu tên không hợp lệ, dừng lại
+        if (!isNameValid) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập tên");
+            return; // Nếu có lỗi, không tiếp tục
+        }
+        
 
         // Database connection
         Connection connection = DatabaseConnection.connect();
@@ -474,7 +583,7 @@ public class addContacts extends javax.swing.JFrame {
             String sql = "INSERT INTO user (username, email, phone, note, created_at, avatar, address) VALUES (?, ?, ?, ?, ?, ?, ?)";
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 preparedStatement.setString(1, username);
-                preparedStatement.setString(2, email);
+                preparedStatement.setString(2, email); // Email có thể là rỗng
                 preparedStatement.setString(3, phone);
                 preparedStatement.setString(4, note);
                 preparedStatement.setTimestamp(5, createdAt);
@@ -497,6 +606,7 @@ public class addContacts extends javax.swing.JFrame {
                 int rowsAffected = preparedStatement.executeUpdate();
                 if (rowsAffected > 0) {
                     JOptionPane.showMessageDialog(this, "Thêm liên hệ thành công!");
+                    
                 } else {
                     JOptionPane.showMessageDialog(this, "Thêm liên hệ thất bại!");
                 }
@@ -540,6 +650,10 @@ public class addContacts extends javax.swing.JFrame {
         trangChu.setVisible(true);
 
     }//GEN-LAST:event_backBTNActionPerformed
+
+    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField1ActionPerformed
 
     /**
      * @param args the command line arguments

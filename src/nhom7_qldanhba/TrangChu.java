@@ -14,16 +14,19 @@ import java.util.Random;
 import java.util.List;
 import java.util.Comparator;
 import java.util.stream.Collectors;
+import java.text.Collator;
+import java.util.Locale;
+import java.sql.PreparedStatement;
 
 public class TrangChu extends javax.swing.JFrame {
     
     private List<User> users;
 
     private Map<String, Color> contactColors = new TreeMap<>();
+    
 
     public TrangChu() {
         initComponents();
-        
         // Lấy kết nối từ DatabaseConnection
 
 
@@ -54,82 +57,89 @@ public class TrangChu extends javax.swing.JFrame {
         // Thêm danh bạ vào giao diện
         addContactListToPanel();
     }
+    
+    
+    
 
-    private void addContactListToPanel() {
-        // Tạo panel chính chứa danh sách liên lạc
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 10, 30)); // Viền cho danh sách
+    // Trong phương thức addContactListToPanel()
+public void addContactListToPanel() {
+    // Tạo panel chính chứa danh sách liên lạc
+    JPanel mainPanel = new JPanel();
+    mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+    mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 10, 30)); // Viền cho danh sách
 
-        // Lấy kết nối từ DatabaseConnection
-        Connection connection = null;
-        try {
-            connection = DatabaseConnection.connect();
+    // Lấy kết nối từ DatabaseConnection
+    Connection connection = null;
+    try {
+        connection = DatabaseConnection.connect();
 
-            if (connection != null) {
-                // Lấy danh sách người dùng
-                users = UserDataFetcher.fetchData(connection);
-                 // Tạo danh sách liên lạc mẫu
-                 String[] contacts = new String[users.size()];
+        if (connection != null) {
+            // Lấy danh sách người dùng
+            users = UserDataFetcher.fetchData(connection);
+            
+            // Tạo Collator cho tiếng Việt
+            Collator collator = Collator.getInstance(new Locale("vi", "VN"));
+            
+            // Sắp xếp danh sách người dùng theo tên bằng Collator
+            users.sort(Comparator.comparing(user -> user.getUsername(), collator));
 
-                // Lấy tên người dùng và thêm vào mảng contacts
-                for (int i = 0; i < users.size(); i++) {
-                    contacts[i] = users.get(i).getUsername().toUpperCase();
+            // Tạo danh sách liên lạc mẫu
+            String[] contacts = new String[users.size()];
 
-                }
-                
-                // Sắp xếp danh sách liên lạc theo bảng chữ cái
-                Arrays.sort(contacts, String.CASE_INSENSITIVE_ORDER);
-                
-                
-
-                Map<Character, JPanel> contactGroups = new TreeMap<>();
-
-                // Chia các liên lạc theo chữ cái đầu
-                for (String contact : contacts) {
-                    char firstLetter = contact.charAt(0);
-                    contactGroups.putIfAbsent(firstLetter, new JPanel());
-
-                    // Lấy nhóm liên lạc của chữ cái đầu tiên
-                    JPanel contactGroup = contactGroups.get(firstLetter);
-
-                    // Thêm mục liên lạc vào nhóm với khoảng cách
-                    contactGroup.add(createContactItem(contact));
-                    contactGroup.add(Box.createRigidArea(new Dimension(0, 15)));
-                }
-
-                // Duyệt qua các nhóm chữ cái và thêm vào panel chính
-                for (Map.Entry<Character, JPanel> entry : contactGroups.entrySet()) {
-                    JLabel groupTitle = new JLabel(String.valueOf(entry.getKey()), SwingConstants.LEFT);
-                    groupTitle.setFont(new Font("Arial", Font.BOLD, 20));
-                    groupTitle.setForeground(Color.BLUE);
-                    groupTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-                    mainPanel.add(groupTitle);
-
-                    JPanel contactGroup = entry.getValue();
-                    contactGroup.setLayout(new BoxLayout(contactGroup, BoxLayout.Y_AXIS));
-                    mainPanel.add(contactGroup);
-                    mainPanel.add(Box.createRigidArea(new Dimension(0, 22)));
-                }
-
-            } else {
-                System.out.println("Kết nối tới cơ sở dữ liệu thất bại.");
+            // Lấy tên người dùng và thêm vào mảng contacts
+            for (int i = 0; i < users.size(); i++) {
+                contacts[i] = users.get(i).getUsername().toUpperCase();
             }
-        } finally {
-            // Đảm bảo đóng kết nối
-            DatabaseConnection.close(connection);
+
+            // Sắp xếp danh sách liên lạc theo bảng chữ cái
+            Arrays.sort(contacts, collator);
+
+            Map<Character, JPanel> contactGroups = new TreeMap<>();
+
+            // Chia các liên lạc theo chữ cái đầu
+            for (String contact : contacts) {
+                char firstLetter = contact.charAt(0);
+                contactGroups.putIfAbsent(firstLetter, new JPanel());
+
+                // Lấy nhóm liên lạc của chữ cái đầu tiên
+                JPanel contactGroup = contactGroups.get(firstLetter);
+
+                // Thêm mục liên lạc vào nhóm với khoảng cách
+                contactGroup.add(createContactItem(contact));
+                contactGroup.add(Box.createRigidArea(new Dimension(0, 15)));
+            }
+
+            // Duyệt qua các nhóm chữ cái và thêm vào panel chính
+            for (Map.Entry<Character, JPanel> entry : contactGroups.entrySet()) {
+                JLabel groupTitle = new JLabel(String.valueOf(entry.getKey()), SwingConstants.LEFT);
+                groupTitle.setFont(new Font("Arial", Font.BOLD, 20));
+                groupTitle.setForeground(Color.BLUE);
+                groupTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+                mainPanel.add(groupTitle);
+
+                JPanel contactGroup = entry.getValue();
+                contactGroup.setLayout(new BoxLayout(contactGroup, BoxLayout.Y_AXIS));
+                mainPanel.add(contactGroup);
+                mainPanel.add(Box.createRigidArea(new Dimension(0, 22)));
+            }
+
+        } else {
+            System.out.println("Kết nối tới cơ sở dữ liệu thất bại.");
         }
-        
-
-        // Thêm Panel chính vào JScrollPane để hỗ trợ cuộn
-        JScrollPane scrollPane = new JScrollPane(mainPanel);
-        scrollPane.setPreferredSize(new Dimension(500, 400)); // Đặt chiều rộng và chiều cao cho JScrollPane
-
-        // Thêm JScrollPane vào txtHomeScroll
-        txtHomeScroll.setViewportView(scrollPane);
-        txtHomeScroll.setPreferredSize(new Dimension(500, 400)); // Đặt kích thước mong muốn cho JScrollPane
+    } finally {
+        // Đảm bảo đóng kết nối
+        DatabaseConnection.close(connection);
     }
+
+    // Thêm Panel chính vào JScrollPane để hỗ trợ cuộn
+    JScrollPane scrollPane = new JScrollPane(mainPanel);
+    scrollPane.setPreferredSize(new Dimension(500, 400)); // Đặt chiều rộng và chiều cao cho JScrollPane
+
+    // Thêm JScrollPane vào txtHomeScroll
+    txtHomeScroll.setViewportView(scrollPane);
+    txtHomeScroll.setPreferredSize(new Dimension(500, 400)); // Đặt kích thước mong muốn cho JScrollPane
+}
 
     public Color getContactColor(String contactName) {
         return contactColors.get(contactName);
@@ -272,6 +282,7 @@ public class TrangChu extends javax.swing.JFrame {
         return new Color(r, g, b);
     }
 
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -285,7 +296,7 @@ public class TrangChu extends javax.swing.JFrame {
         jSeparator1 = new javax.swing.JSeparator();
         ExportBtn = new javax.swing.JButton();
         AddDanhba = new javax.swing.JButton();
-        txtDelete = new javax.swing.JButton();
+        btnDelete = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
@@ -355,17 +366,20 @@ public class TrangChu extends javax.swing.JFrame {
         AddDanhba.setBackground(new java.awt.Color(207, 207, 207));
         AddDanhba.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
         AddDanhba.setText("Thêm");
-        AddDanhba.setSize(new java.awt.Dimension(105, 40));
         AddDanhba.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 AddDanhbaActionPerformed(evt);
             }
         });
 
-        txtDelete.setBackground(new java.awt.Color(207, 207, 207));
-        txtDelete.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
-        txtDelete.setText("Xoá");
-        txtDelete.setSize(new java.awt.Dimension(105, 40));
+        btnDelete.setBackground(new java.awt.Color(207, 207, 207));
+        btnDelete.setFont(new java.awt.Font("Helvetica Neue", 1, 16)); // NOI18N
+        btnDelete.setText("Xoá Tất Cả");
+        btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -387,13 +401,13 @@ public class TrangChu extends javax.swing.JFrame {
                         .addComponent(txtBtnSearch)
                         .addGap(5, 5, 5))))
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(57, 57, 57)
                 .addComponent(ExportBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(53, 53, 53)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(AddDanhba, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(54, 54, 54)
-                .addComponent(txtDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(62, 62, 62))
+                .addComponent(btnDelete)
+                .addGap(59, 59, 59))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -404,15 +418,15 @@ public class TrangChu extends javax.swing.JFrame {
                     .addComponent(txtSearch)
                     .addComponent(txtBtnSearch, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtHomeScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 659, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtHomeScroll, javax.swing.GroupLayout.PREFERRED_SIZE, 453, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(7, 7, 7)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(AddDanhba, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(ExportBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(17, Short.MAX_VALUE))
+                    .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -488,13 +502,33 @@ public class TrangChu extends javax.swing.JFrame {
     txtHomeScroll.setPreferredSize(new Dimension(500, 400));
     }
     
+    private void deleteAllContacts() {
+    Connection connection = null;
+    try {
+        connection = DatabaseConnection.connect();
+        if (connection != null) {
+            String sql = "DELETE FROM users"; // Thay đổi 'users' thành tên bảng của bạn
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                int rowsAffected = preparedStatement.executeUpdate();
+                System.out.println("Đã xóa " + rowsAffected + " liên lạc.");
+            }
+        } else {
+            System.out.println("Kết nối tới cơ sở dữ liệu thất bại.");
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    } finally {
+        DatabaseConnection.close(connection);
+    }
+}
+    
     private void txtHomeScrollAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtHomeScrollAncestorAdded
         // TODO add your handling code here:
     }//GEN-LAST:event_txtHomeScrollAncestorAdded
 
     private void ExportBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExportBtnActionPerformed
          this.dispose(); // Đóng JFrame hiện tại (TrangChu)
-    xuatFileCSV XuatFileCSV = new xuatFileCSV();
+        xuatFileCSV XuatFileCSV = new xuatFileCSV();
     XuatFileCSV.setVisible(true); // Hiển thị JFrame mới
     }//GEN-LAST:event_ExportBtnActionPerformed
 
@@ -505,6 +539,16 @@ public class TrangChu extends javax.swing.JFrame {
         addContacts AddContacts = new addContacts();
         AddContacts.setVisible(true);
     }//GEN-LAST:event_AddDanhbaActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        // TODO add your handling code here:
+        int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa tất cả liên lạc không?", "Xác nhận", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            deleteAllContacts(); // Xóa tất cả liên lạc
+            addContactListToPanel(); // Làm mới danh sách liên lạc
+        }
+
+    }//GEN-LAST:event_btnDeleteActionPerformed
     public class RoundedBorder extends AbstractBorder {
 
         private int radius;
@@ -542,11 +586,11 @@ public class TrangChu extends javax.swing.JFrame {
     private javax.swing.JButton AddDanhba;
     private javax.swing.JButton ExportBtn;
     private javax.swing.JLabel Header;
+    private javax.swing.JButton btnDelete;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JButton txtBtnSearch;
-    private javax.swing.JButton txtDelete;
     private javax.swing.JScrollPane txtHomeScroll;
     private javax.swing.JTextField txtSearch;
     // End of variables declaration//GEN-END:variables

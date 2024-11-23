@@ -11,6 +11,12 @@ import java.net.URL;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream; // Import cho ByteArrayInputStream
 import javax.imageio.ImageIO; 
+import java.io.IOException;
+import java.sql.Connection;
+import java.awt.image.BufferedImage;
+import javax.swing.JOptionPane; // Để sử dụng JOptionPane cho hộp thoại xác nhận và thông báo
+import java.sql.PreparedStatement; // Để sử dụng đối tượng PreparedStatement
+import java.sql.SQLException; // Để xử lý ngoại lệ SQL
 
 
 public class ChiTietLienLac extends javax.swing.JFrame {
@@ -30,7 +36,6 @@ public class ChiTietLienLac extends javax.swing.JFrame {
     private JLabel Header;
     
 
-    
 
     public ChiTietLienLac(String contactName, String phone, String email, String address, String note, byte[] avatarImagePath, TrangChu trangChu) {
         this.contactName = contactName;
@@ -41,6 +46,9 @@ public class ChiTietLienLac extends javax.swing.JFrame {
         this.trangChu = trangChu;
         this.avatarImagePath = avatarImagePath;
         initComponents();
+        
+        
+        
     }
 
 
@@ -167,6 +175,7 @@ public class ChiTietLienLac extends javax.swing.JFrame {
     btnEdit = createIconButton("✎", 45);  // Nút chỉnh sửa
     btnStar = createIconButton("☆", 40);   // Nút đánh dấu
     btnDelete = createIconButton("Xoá", 30); // Nút thùng rác (biểu tượng Unicode)
+    btnDelete.addActionListener(e -> deleteContact());
  
     // Thêm hiệu ứng đổi màu cho các nút
     addHoverEffect(btnEdit, new Color(0, 122, 204), Color.DARK_GRAY);
@@ -371,6 +380,38 @@ private void addHoverEffect(JButton button, Color hoverColor, Color originalColo
     button.setFocusPainted(false);
         return button;
     }
+    
+    private void deleteContact() {
+        int confirmation = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa liên hệ này?", "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
+    if (confirmation == JOptionPane.YES_OPTION) {
+        Connection connection = DatabaseConnection.connect();
+        if (connection != null) {
+            String sql = "DELETE FROM user WHERE phone = ?"; // Thay 'contacts' bằng tên bảng thực tế của bạn
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, phone); // Giả sử bạn xóa theo số điện thoại
+                int rowsAffected = preparedStatement.executeUpdate();
+                if (rowsAffected > 0) {
+                    JOptionPane.showMessageDialog(this, "Đã xóa liên hệ thành công.");
+                    dispose(); // Đóng cửa sổ chi tiết liên lạc
+
+                    // Gọi phương thức làm mới danh sách liên hệ trong TrangChu
+                    if (trangChu != null) {
+                        trangChu.addContactListToPanel(); // Cập nhật danh sách liên hệ
+                        trangChu.setVisible(true);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Không tìm thấy liên hệ để xóa.");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Lỗi khi xóa liên hệ: " + e.getMessage());
+            } finally {
+                DatabaseConnection.close(connection);
+            }
+        }
+    }
+}
+   
 
    private void addActionButton(JPanel panel, String icon, String text) {
     JPanel buttonPanel = new JPanel();
