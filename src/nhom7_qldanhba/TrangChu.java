@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.TreeMap;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.List;
 import java.util.Comparator;
@@ -17,135 +18,179 @@ import java.util.stream.Collectors;
 import java.text.Collator;
 import java.util.Locale;
 import java.sql.PreparedStatement;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.text.Normalizer;
+import java.util.regex.Pattern;
+import java.util.ArrayList;
 
 public class TrangChu extends javax.swing.JFrame {
-    
-    private List<User> users;
 
+    private List<User> users;
+    private final Collator vietnameseCollator;
     private Map<String, Color> contactColors = new TreeMap<>();
-    
+
+    private Map<String, JCheckBox> contactCheckboxes = new HashMap<>();
+    private JButton confirmDeleteBtn;
+    private boolean isSelectionMode = false;
 
     public TrangChu() {
         initComponents();
-        // Lấy kết nối từ DatabaseConnection
+        vietnameseCollator = Collator.getInstance(new Locale("vi", "VN"));
+        vietnameseCollator.setStrength(Collator.TERTIARY);// So sánh không phân biệt dấu
 
+        // Thêm DocumentListener cho real-time search
+        txtSearch.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                filterContacts();
+            }
 
-        // Đặt border bo tròn cho txtSearch
-        txtSearch.setBorder(new RoundedBorder(20, new Color(204, 204, 204)));
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                filterContacts();
+            }
 
-        if (txtSearch.getText().isEmpty()) {
-            txtSearch.setText("Tìm kiếm...");  // Đảm bảo placeholder xuất hiện ngay khi bắt đầu
-        }
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                filterContacts();
+            }
+        });
 
-        // Thêm sự kiện focus cho ô tìm kiếm
+        setupSearchPlaceholder();
+        addContactListToPanel();
+    }
+
+    private void setupSearchPlaceholder() {
+        txtSearch.setForeground(Color.GRAY);
+        txtSearch.setText("Tìm kiếm...");
+
         txtSearch.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
                 if (txtSearch.getText().equals("Tìm kiếm...")) {
-                    txtSearch.setText("");  // Xóa placeholder khi focus
+                    txtSearch.setText("");
+                    txtSearch.setForeground(Color.BLACK);
                 }
             }
 
             @Override
             public void focusLost(FocusEvent e) {
                 if (txtSearch.getText().isEmpty()) {
-                    txtSearch.setText("Tìm kiếm...");  // Hiển thị lại placeholder khi mất focus
+                    txtSearch.setForeground(Color.GRAY);
+                    txtSearch.setText("Tìm kiếm...");
                 }
             }
         });
-
-        // Thêm danh bạ vào giao diện
-        addContactListToPanel();
     }
-    
-    
-    
+    // Hàm lọc danh bạ theo từ khóa tìm kiếm
 
-    // Trong phương thức addContactListToPanel()
-public void addContactListToPanel() {
-    // Tạo panel chính chứa danh sách liên lạc
-    JPanel mainPanel = new JPanel();
-    mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-    mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 10, 30)); // Viền cho danh sách
-
-    // Lấy kết nối từ DatabaseConnection
-    Connection connection = null;
-    try {
-        connection = DatabaseConnection.connect();
-
-        if (connection != null) {
-            // Lấy danh sách người dùng
-            users = UserDataFetcher.fetchData(connection);
-            
-            // Tạo Collator cho tiếng Việt
-            Collator collator = Collator.getInstance(new Locale("vi", "VN"));
-            
-            // Sắp xếp danh sách người dùng theo tên bằng Collator
-            users.sort(Comparator.comparing(user -> user.getUsername(), collator));
-
-            // Tạo danh sách liên lạc mẫu
-            String[] contacts = new String[users.size()];
-
-            // Lấy tên người dùng và thêm vào mảng contacts
-            for (int i = 0; i < users.size(); i++) {
-                contacts[i] = users.get(i).getUsername().toUpperCase();
-            }
-
-            // Sắp xếp danh sách liên lạc theo bảng chữ cái
-            Arrays.sort(contacts, collator);
-
-            Map<Character, JPanel> contactGroups = new TreeMap<>();
-
-            // Chia các liên lạc theo chữ cái đầu
-            for (String contact : contacts) {
-                char firstLetter = contact.charAt(0);
-                contactGroups.putIfAbsent(firstLetter, new JPanel());
-
-                // Lấy nhóm liên lạc của chữ cái đầu tiên
-                JPanel contactGroup = contactGroups.get(firstLetter);
-
-                // Thêm mục liên lạc vào nhóm với khoảng cách
-                contactGroup.add(createContactItem(contact));
-                contactGroup.add(Box.createRigidArea(new Dimension(0, 15)));
-            }
-
-            // Duyệt qua các nhóm chữ cái và thêm vào panel chính
-            for (Map.Entry<Character, JPanel> entry : contactGroups.entrySet()) {
-                JLabel groupTitle = new JLabel(String.valueOf(entry.getKey()), SwingConstants.LEFT);
-                groupTitle.setFont(new Font("Arial", Font.BOLD, 20));
-                groupTitle.setForeground(Color.BLUE);
-                groupTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-                mainPanel.add(groupTitle);
-
-                JPanel contactGroup = entry.getValue();
-                contactGroup.setLayout(new BoxLayout(contactGroup, BoxLayout.Y_AXIS));
-                mainPanel.add(contactGroup);
-                mainPanel.add(Box.createRigidArea(new Dimension(0, 22)));
-            }
-
-        } else {
-            System.out.println("Kết nối tới cơ sở dữ liệu thất bại.");
+    private void filterContacts() {
+        String searchText = txtSearch.getText();
+        if (searchText.equals("Tìm kiếm...")) {
+            searchText = "";
         }
-    } finally {
-        // Đảm bảo đóng kết nối
-        DatabaseConnection.close(connection);
+
+        // Nếu ô tìm kiếm trống, hiển thị lại toàn bộ danh sách
+        if (searchText.isEmpty()) {
+            addContactListToPanel();
+            return;
+        }
+
+        // Thực hiện tìm kiếm realtime
+        performContactSearch(searchText);
     }
 
-    // Thêm Panel chính vào JScrollPane để hỗ trợ cuộn
-    JScrollPane scrollPane = new JScrollPane(mainPanel);
-    scrollPane.setPreferredSize(new Dimension(500, 400)); // Đặt chiều rộng và chiều cao cho JScrollPane
+    private static final String VIETNAMESE_ALPHABET = "aăâbcdđefghijklmnopqrstuvwxyz";
 
-    // Thêm JScrollPane vào txtHomeScroll
-    txtHomeScroll.setViewportView(scrollPane);
-    txtHomeScroll.setPreferredSize(new Dimension(500, 400)); // Đặt kích thước mong muốn cho JScrollPane
-}
+    private int compareVietnamese(String s1, String s2) {
+        int minLength = Math.min(s1.length(), s2.length());
+        for (int i = 0; i < minLength; i++) {
+            int index1 = VIETNAMESE_ALPHABET.indexOf(s1.charAt(i));
+            int index2 = VIETNAMESE_ALPHABET.indexOf(s2.charAt(i));
+            if (index1 != index2) {
+                return Integer.compare(index1, index2);
+            }
+        }
+        return Integer.compare(s1.length(), s2.length()); // If equal up to the length of the shorter string
+    }
 
-    public Color getContactColor(String contactName) {
-        return contactColors.get(contactName);
+    public void addContactListToPanel() {
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 10, 30));
+
+        Connection connection = null;
+        try {
+            connection = DatabaseConnection.connect();
+            if (connection != null) {
+                users = UserDataFetcher.fetchData(connection);
+
+                // Nhóm users theo chữ cái đầu tiên với custom comparator cho tiếng Việt
+                Map<Character, List<User>> groupedUsers = new TreeMap<>(new Comparator<Character>() {
+                    @Override
+                    public int compare(Character c1, Character c2) {
+                        return compareVietnamese(c1.toString(), c2.toString());
+                    }
+                });
+
+                // Phân nhóm users
+                for (User user : users) {
+                    char firstLetter = user.getUsername().toUpperCase().charAt(0);
+                    groupedUsers.computeIfAbsent(firstLetter, k -> new ArrayList<>()).add(user);
+                }
+
+                // Duyệt qua từng nhóm
+                for (Map.Entry<Character, List<User>> entry : groupedUsers.entrySet()) {
+                    // Tạo panel riêng cho mỗi nhóm chữ cái
+                    JPanel groupPanel = new JPanel();
+                    groupPanel.setLayout(new BoxLayout(groupPanel, BoxLayout.Y_AXIS));
+                    groupPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+                    // Tạo header panel chứa chữ cái và line
+                    JPanel headerPanel = new JPanel();
+                    headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+                    headerPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+                    // Sắp xếp users trong nhóm
+                    List<User> sortedUsers = entry.getValue();
+                    sortedUsers.sort((u1, u2) -> compareVietnamese(
+                            u1.getUsername().toLowerCase(),
+                            u2.getUsername().toLowerCase()
+                    ));
+
+                    // Thêm contacts vào group
+                    for (User user : sortedUsers) {
+                        JPanel contactPanel = createContactItem(user.getUsername().toUpperCase());
+                        groupPanel.add(contactPanel);
+                        groupPanel.add(Box.createRigidArea(new Dimension(0, 12)));
+                    }
+
+                    // Thêm group panel vào main panel
+                    mainPanel.add(groupPanel);
+
+                    // Thêm khoảng trống giữa các nhóm
+                    mainPanel.add(Box.createRigidArea(new Dimension(0, 35)));
+
+                }
+            } else {
+                System.out.println("Kết nối tới cơ sở dữ liệu thất bại.");
+            }
+        } finally {
+            DatabaseConnection.close(connection);
+        }
+
+        JScrollPane scrollPane = new JScrollPane(mainPanel);
+        scrollPane.setPreferredSize(new Dimension(500, 400));
+        txtHomeScroll.setViewportView(scrollPane);
+        txtHomeScroll.setPreferredSize(new Dimension(500, 400));
     }
 
     private JPanel createContactItem(String contactName) {
+
+        JPanel contactPanel = new JPanel();
+        contactPanel.setLayout(new BoxLayout(contactPanel, BoxLayout.X_AXIS));
+        contactPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         // Lấy chữ cái đầu tiên của tên liên lạc
         String firstLetter = contactName.substring(0, 1).toUpperCase();
 
@@ -157,6 +202,14 @@ public void addContactListToPanel() {
         circleLabel.setMinimumSize(new Dimension(100, 100));
         circleLabel.setOpaque(true);
         circleLabel.setFont(new Font("Arial", Font.BOLD, 30));
+
+        // Create checkbox
+        JCheckBox checkbox = new JCheckBox();
+        checkbox.setVisible(isSelectionMode);
+        contactCheckboxes.put(contactName, checkbox);
+        // Add checkbox to panel
+        contactPanel.add(checkbox);
+        contactPanel.add(Box.createRigidArea(new Dimension(10, 0)));
 
         // Thiết lập màu nền ngẫu nhiên cho JLabel
         Color backgroundColor = getRandomColor();
@@ -175,7 +228,6 @@ public void addContactListToPanel() {
         nameLabel.setFont(new Font("Arial", Font.PLAIN, 28));
 
         // Gộp ô tròn và tên liên lạc vào một JPanel
-        JPanel contactPanel = new JPanel();
         contactPanel.setLayout(new BoxLayout(contactPanel, BoxLayout.X_AXIS));
         contactPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         contactPanel.add(circleLabel);
@@ -183,86 +235,89 @@ public void addContactListToPanel() {
         contactPanel.add(nameLabel);
 
         contactPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-    private Color originalPanelBackground;
-    private Font originalNameFont;
+            private Color originalPanelBackground;
+            private Font originalNameFont;
 
-    @Override
-    public void mouseEntered(java.awt.event.MouseEvent evt) {
-        // Lưu màu nền gốc và font gốc
-        originalPanelBackground = contactPanel.getBackground();
-        originalNameFont = nameLabel.getFont();
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                // Lưu màu nền gốc và font gốc
+                originalPanelBackground = contactPanel.getBackground();
+                originalNameFont = nameLabel.getFont();
 
-        contactPanel.setBackground(new Color(198, 226, 255));
-        contactPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 35));
+                contactPanel.setBackground(new Color(198, 226, 255));
+                contactPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                nameLabel.setFont(new Font("Arial", Font.BOLD, 35));
 
-        // In đậm tên liên lạc
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 28));
+                // In đậm tên liên lạc
+                nameLabel.setFont(new Font("Arial", Font.BOLD, 28));
 
-        // Giữ nguyên màu nền của ô chữ cái
-        circleLabel.setBackground(backgroundColor);
-    }
+                // Giữ nguyên màu nền của ô chữ cái
+                circleLabel.setBackground(backgroundColor);
+            }
 
-    @Override
-    public void mouseExited(java.awt.event.MouseEvent evt) {
-        // Khôi phục màu nền ban đầu
-        contactPanel.setBackground(originalPanelBackground);
-        contactPanel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                // Khôi phục màu nền ban đầu
+                contactPanel.setBackground(originalPanelBackground);
+                contactPanel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 
-        // Khôi phục font ban đầu
-        nameLabel.setFont(originalNameFont);
+                // Khôi phục font ban đầu
+                nameLabel.setFont(originalNameFont);
 
-        // Khôi phục màu nền của ô chữ cái
-        circleLabel.setBackground(backgroundColor);
-    }
+                // Khôi phục màu nền của ô chữ cái
+                circleLabel.setBackground(backgroundColor);
+            }
 
-    @Override
-    public void mouseClicked(java.awt.event.MouseEvent evt) {
-        // Tìm thông tin của user hiện tại
-        User selectedUser = users.stream()
-            .filter(user -> user.getUsername().toUpperCase().equals(contactName))
-            .findFirst()
-            .orElse(null);
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                // Tìm thông tin của user hiện tại
+                User selectedUser = users.stream()
+                        .filter(user -> user.getUsername().toUpperCase().equals(contactName))
+                        .findFirst()
+                        .orElse(null);
 
-        if (selectedUser != null) {
-            // Mở màn hình chi tiết liên lạc với thông tin từ user
-            ChiTietLienLac chiTietLienLac = new ChiTietLienLac(
-                selectedUser.getUsername(),  
-                selectedUser.getPhone(),
-                selectedUser.getAddress(),
-                selectedUser.getEmail(),
-                selectedUser.getNote(),
-                selectedUser.getAvatar(),
-                TrangChu.this
-            );
-            chiTietLienLac.setVisible(true);
+                if (selectedUser != null) {
+                    // Mở màn hình chi tiết liên lạc với thông tin từ user
+                    ChiTietLienLac chiTietLienLac = new ChiTietLienLac(
+                            selectedUser.getIdUser(),
+                            selectedUser.getUsername(),
+                            selectedUser.getPhone(),
+                            selectedUser.getEmail(),
+                            selectedUser.getAddress(),
+                            selectedUser.getNote(),
+                            selectedUser.getAvatar(),
+                            selectedUser.getIsBlock(),
+                            TrangChu.this
+                    );
+                    chiTietLienLac.setVisible(true);
 
-            // Ẩn màn hình chính
-            setVisible(false);
-        } else {
-            System.out.println("Không tìm thấy thông tin của user: " + contactName);
-        }
-    }
-    }); 
+                    // Ẩn màn hình chính
+                    setVisible(false);
+                } else {
+                    System.out.println("Không tìm thấy thông tin của user: " + contactName);
+                }
+            }
+        });
 
         return contactPanel;
     }
-    
+
     class CirclePanel extends JPanel {
-    private Color backgroundColor;
 
-    public CirclePanel(Color color) {
-        this.backgroundColor = color;
-        setPreferredSize(new Dimension(44, 44)); // Kích thước 44px
-    }
+        private Color backgroundColor;
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        g.setColor(backgroundColor);
-        g.fillOval(0, 0, 44, 44); // Vẽ hình tròn
+        public CirclePanel(Color color) {
+            this.backgroundColor = color;
+            setPreferredSize(new Dimension(44, 44)); // Kích thước 44px
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            g.setColor(backgroundColor);
+            g.fillOval(0, 0, 44, 44); // Vẽ hình tròn
+        }
     }
-}
 
     // Hàm lấy màu chữ tương phản với nền (sáng hay tối)
     private Color getContrastingColor(Color backgroundColor) {
@@ -282,6 +337,86 @@ public void addContactListToPanel() {
         return new Color(r, g, b);
     }
 
+    private void showConfirmDeleteButton() {
+        if (confirmDeleteBtn == null) {
+            confirmDeleteBtn = new JButton("Xác nhận xoá");
+            confirmDeleteBtn.setBackground(new Color(255, 69, 69));
+            confirmDeleteBtn.setForeground(Color.WHITE);
+            confirmDeleteBtn.setFont(new Font("Helvetica Neue", Font.BOLD, 16));
+            confirmDeleteBtn.addActionListener(e -> deleteSelectedContacts());
+
+            // Add to layout near the delete button
+            jPanel2.add(confirmDeleteBtn);
+            jPanel2.revalidate();
+            jPanel2.repaint();
+        }
+        confirmDeleteBtn.setVisible(true);
+    }
+
+    private void deleteSelectedContacts() {
+        // Collect all selected contacts' names
+        List<String> selectedContacts = contactCheckboxes.entrySet().stream()
+                .filter(entry -> entry.getValue().isSelected())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        if (!selectedContacts.isEmpty()) {
+            // Logic to remove the selected contacts from the database
+            try (Connection connection = DatabaseConnection.connect()) {
+                if (connection != null) {
+                    // Iterate over selected contacts and delete them
+                    for (String contactName : selectedContacts) {
+                        String query = "DELETE FROM contacts WHERE username = ?";
+                        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+                            stmt.setString(1, contactName);
+                            stmt.executeUpdate();
+                        }
+                    }
+                    // Remove deleted contacts from UI
+                    users.removeIf(user -> selectedContacts.contains(user.getUsername()));
+                    addContactListToPanel();  // Refresh the contact list
+                } else {
+                    System.out.println("Database connection failed.");
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            System.out.println("No contacts selected.");
+        }
+        confirmDeleteBtn.setVisible(false);  // Hide the confirm button after delete
+    }
+
+    private void deleteContacts(List<String> usernames) {
+        Connection connection = null;
+        try {
+            connection = DatabaseConnection.connect();
+            if (connection != null) {
+                String sql = "DELETE FROM users WHERE username = ?";
+                try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                    connection.setAutoCommit(false);
+                    for (String username : usernames) {
+                        stmt.setString(1, username);
+                        stmt.addBatch();
+                    }
+                    stmt.executeBatch();
+                    connection.commit();
+                }
+            }
+        } catch (SQLException e) {
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi khi xoá liên hệ: " + e.getMessage());
+        } finally {
+            DatabaseConnection.close(connection);
+        }
+    }
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -444,96 +579,161 @@ public void addContactListToPanel() {
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
-    
+
     }//GEN-LAST:event_txtSearchActionPerformed
 
     private void txtBtnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtBtnSearchActionPerformed
-     String searchTerm = txtSearch.getText().trim().toUpperCase();
-    if (searchTerm.isEmpty() || searchTerm.equals("TÌM KIẾM...")) {
-        // Reset to original contact list if search is empty
-        addContactListToPanel();
-        return;
-    }
+        String searchTerm = txtSearch.getText().trim().toUpperCase();
+        if (searchTerm.isEmpty() || searchTerm.equals("TÌM KIẾM...")) {
+            // Reset to original contact list if search is empty
+            addContactListToPanel();
+            return;
+        }
 
-    // Perform search
-    performContactSearch(searchTerm);
+        // Perform search
+        performContactSearch(searchTerm);
     }//GEN-LAST:event_txtBtnSearchActionPerformed
-
     private void performContactSearch(String searchTerm) {
-    // Tạo panel chính chứa kết quả tìm kiếm
-    JPanel mainPanel = new JPanel();
-    mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-    mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 10, 30));
+        // Chuẩn hóa searchTerm
+        String normalizedSearchTerm = removeAccents(searchTerm.toLowerCase().trim());
 
-    // Lọc danh sách liên lạc dựa trên từ khóa tìm kiếm
-    List<User> searchResults = users.stream()
-        .filter(user -> 
-            user.getUsername().toUpperCase().contains(searchTerm) ||
-            (user.getPhone() != null && user.getPhone().contains(searchTerm)) ||
-            (user.getEmail() != null && user.getEmail().toUpperCase().contains(searchTerm)) ||
-            (user.getAddress() != null && user.getAddress().toUpperCase().contains(searchTerm))
-        )
-        .collect(Collectors.toList());
+        // Tạo panel chính chứa kết quả tìm kiếm
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 10, 30));
 
-    if (searchResults.isEmpty()) {
-        // Hiển thị thông báo không tìm thấy kết quả
-        JLabel noResultLabel = new JLabel("Không tìm thấy liên hệ phù hợp");
-        noResultLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        noResultLabel.setForeground(Color.GRAY);
-        mainPanel.add(noResultLabel);
-    } else {
-        // Sắp xếp kết quả theo tên
-        searchResults.sort(Comparator.comparing(user -> user.getUsername().toUpperCase()));
+        // Lọc và nhóm users theo kết quả tìm kiếm
+        Map<Character, List<User>> filteredUsers = users.stream()
+                .filter(user -> {
+                    // Chuẩn hóa các trường thông tin của user để tìm kiếm
+                    String normalizedUser = removeAccents(user.getUsername().toLowerCase());
+                    String normalizedPhone = user.getPhone() != null ? user.getPhone().toLowerCase() : "";
+                    String normalizedEmail = user.getEmail() != null ? removeAccents(user.getEmail().toLowerCase()) : "";
+                    String normalizedAddress = user.getAddress() != null ? removeAccents(user.getAddress().toLowerCase()) : "";
 
-        for (User user : searchResults) {
-            String contactName = user.getUsername().toUpperCase();
-            JPanel contactPanel = createContactItem(contactName);
-            mainPanel.add(contactPanel);
-            mainPanel.add(Box.createRigidArea(new Dimension(0, 15)));
-        }
-    }
+                    // Tách các từ trong searchTerm
+                    String[] searchWords = normalizedSearchTerm.split("\\s+");
+                    boolean matchesAnyWord = false; // Chỉ cần 1 từ khớp là đủ
 
-    // Thêm Panel chính vào JScrollPane để hỗ trợ cuộn
-    JScrollPane scrollPane = new JScrollPane(mainPanel);
-    scrollPane.setPreferredSize(new Dimension(500, 400));
+                    // Kiểm tra từng từ trong searchWords
+                    for (String word : searchWords) {
+                        if (normalizedUser.contains(word)
+                                || normalizedPhone.contains(word)
+                                || normalizedEmail.contains(word)
+                                || normalizedAddress.contains(word)) {
+                            matchesAnyWord = true; // Có từ khớp
+                            break; // Dừng kiểm tra khi tìm thấy từ khớp
+                        }
+                    }
 
-    // Thêm JScrollPane vào txtHomeScroll
-    txtHomeScroll.setViewportView(scrollPane);
-    txtHomeScroll.setPreferredSize(new Dimension(500, 400));
-    }
-    
-    private void deleteAllContacts() {
-    Connection connection = null;
-    try {
-        connection = DatabaseConnection.connect();
-        if (connection != null) {
-            String sql = "DELETE FROM users"; // Thay đổi 'users' thành tên bảng của bạn
-            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                int rowsAffected = preparedStatement.executeUpdate();
-                System.out.println("Đã xóa " + rowsAffected + " liên lạc.");
-            }
+                    return matchesAnyWord; // Trả về true nếu có ít nhất 1 từ khớp
+                })
+                .collect(Collectors.groupingBy(
+                        user -> Character.toUpperCase(user.getUsername().charAt(0)), // Nhóm theo chữ cái đầu tiên của tên người dùng
+                        TreeMap::new,
+                        Collectors.toList()
+                ));
+
+        // Kiểm tra xem có người dùng nào khớp không
+        if (filteredUsers.isEmpty()) {
+            // Hiển thị thông báo không tìm thấy kết quả
+            JLabel noResultLabel = new JLabel("Không tìm thấy liên hệ phù hợp");
+            noResultLabel.setFont(new Font("Arial", Font.BOLD, 20));
+            noResultLabel.setForeground(Color.GRAY);
+            noResultLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            mainPanel.add(noResultLabel);
         } else {
-            System.out.println("Kết nối tới cơ sở dữ liệu thất bại.");
+            // Sắp xếp và hiển thị kết quả
+            for (Map.Entry<Character, List<User>> entry : filteredUsers.entrySet()) {
+                // Thêm tiêu đề nhóm
+                JLabel groupTitle = new JLabel(String.valueOf(entry.getKey()));
+                groupTitle.setFont(new Font("Arial", Font.BOLD, 20));
+                groupTitle.setForeground(Color.BLUE);
+                groupTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+                mainPanel.add(groupTitle);
+                mainPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+                // Sắp xếp users trong nhóm theo tiếng Việt
+                List<User> sortedUsers = new ArrayList<>(entry.getValue());
+                sortedUsers.sort((u1, u2) -> vietnameseCollator.compare(u1.getUsername(), u2.getUsername()));
+
+                // Hiển thị từng contact trong nhóm
+                for (User user : sortedUsers) {
+                    JPanel contactPanel = createContactItem(user.getUsername().toUpperCase());
+                    contactPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+                    mainPanel.add(contactPanel);
+                    mainPanel.add(Box.createRigidArea(new Dimension(0, 15)));
+                }
+
+                mainPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+            }
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    } finally {
-        DatabaseConnection.close(connection);
+
+        // Cập nhật giao diện
+        JScrollPane scrollPane = new JScrollPane(mainPanel);
+        scrollPane.setPreferredSize(new Dimension(500, 400));
+        txtHomeScroll.setViewportView(scrollPane);
+
+        // Cuộn lên đầu trang
+        SwingUtilities.invokeLater(() -> {
+            JScrollBar vertical = scrollPane.getVerticalScrollBar();
+            vertical.setValue(vertical.getMinimum());
+        });
     }
-}
-    
+// Hàm hỗ trợ chuẩn hóa chuỗi tiếng Việt
+
+    private static String removeAccents(String input) {
+        if (input == null || input.isEmpty()) {
+            return "";
+        }
+
+        // Chuẩn hóa Unicode
+        String temp = Normalizer.normalize(input, Normalizer.Form.NFD);
+
+        // Loại bỏ dấu
+        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        temp = pattern.matcher(temp).replaceAll("");
+
+        // Xử lý các ký tự đặc biệt
+        return temp.replaceAll("đ", "d")
+                .replaceAll("Đ", "D")
+                .replaceAll("[^\\p{ASCII}]", ""); // Loại bỏ các ký tự không phải ASCII
+    }
+
+    private void deleteAllContacts() {
+        Connection connection = null;
+        try {
+            connection = DatabaseConnection.connect();
+            if (connection != null) {
+                String sql = "DELETE FROM users"; // Thay đổi 'users' thành tên bảng của bạn
+                try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                    int rowsAffected = preparedStatement.executeUpdate();
+                    System.out.println("Đã xóa " + rowsAffected + " liên lạc.");
+                }
+            } else {
+                System.out.println("Kết nối tới cơ sở dữ liệu thất bại.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DatabaseConnection.close(connection);
+        }
+    }
     private void txtHomeScrollAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_txtHomeScrollAncestorAdded
         // TODO add your handling code here:
     }//GEN-LAST:event_txtHomeScrollAncestorAdded
 
     private void ExportBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExportBtnActionPerformed
-         this.dispose(); // Đóng JFrame hiện tại (TrangChu)
-        xuatFileCSV XuatFileCSV = new xuatFileCSV();
-    XuatFileCSV.setVisible(true); // Hiển thị JFrame mới
+        // Gọi phương thức xuatFileCSV từ class xuatFileCSV
+        try {
+            xuatFileCSV.xuatFileCSV();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi xuất file: " + ex.getMessage());
+        }
     }//GEN-LAST:event_ExportBtnActionPerformed
 
     private void AddDanhbaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddDanhbaActionPerformed
-         this.dispose(); // Hoặc bạn có thể sử dụng setVisible(false);
+        this.dispose(); // Hoặc bạn có thể sử dụng setVisible(false);
 
         // Hiển thị JFrame của TrangChu
         addContacts AddContacts = new addContacts();
@@ -541,11 +741,24 @@ public void addContactListToPanel() {
     }//GEN-LAST:event_AddDanhbaActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        // TODO add your handling code here:
-        int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn xóa tất cả liên lạc không?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
-            deleteAllContacts(); // Xóa tất cả liên lạc
-            addContactListToPanel(); // Làm mới danh sách liên lạc
+        isSelectionMode = !isSelectionMode;
+
+        if (isSelectionMode) {
+            // Change button text to "Huỷ"
+            btnDelete.setText("Huỷ");
+            // Show checkboxes
+            contactCheckboxes.values().forEach(checkbox -> checkbox.setVisible(true));
+            // Show confirm delete button
+            showConfirmDeleteButton();
+        } else {
+            // Reset to normal mode
+            btnDelete.setText("Xoá Tất Cả");
+            // Hide checkboxes
+            contactCheckboxes.values().forEach(checkbox -> checkbox.setVisible(false));
+            // Hide confirm button
+            if (confirmDeleteBtn != null) {
+                confirmDeleteBtn.setVisible(false);
+            }
         }
 
     }//GEN-LAST:event_btnDeleteActionPerformed

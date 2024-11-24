@@ -9,8 +9,9 @@ public class User {
     private String note;
     private String createdAt;
     private byte[] avatar;
+    private boolean isBlock;
 
-    public User(int idUser, String username , String address, String email, String phone, String note, String createdAt, byte[] avatar) {
+    public User(int idUser, String username , String address, String email, String phone, String note, String createdAt, byte[] avatar, boolean isBlock) {
         this.idUser = idUser;
         this.username = username;
         this.email = email;
@@ -19,6 +20,7 @@ public class User {
         this.note = note;
         this.createdAt = createdAt;
         this.avatar = avatar;
+        this.isBlock = isBlock;
     }
 
     // Getters
@@ -29,4 +31,5 @@ public class User {
     public String getPhone() { return phone; }
     public String getNote() { return note; }
     public byte[] getAvatar() { return avatar; }
+    public boolean getIsBlock() { return isBlock; }
 }

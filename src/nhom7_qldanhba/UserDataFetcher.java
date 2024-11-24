@@ -24,9 +24,10 @@ public class UserDataFetcher {
                 String note = resultSet.getString("note");
                 String createdAt = resultSet.getString("created_at");
                 byte[] avatar = resultSet.getBytes("avatar");
+                boolean isBlock = resultSet.getBoolean("isBlock");
 
                 // Thêm đối tượng User vào danh sách
-                users.add(new User(idUser, username,address, email, phone, note, createdAt, avatar));
+                users.add(new User(idUser, username,address, email, phone, note, createdAt, avatar, isBlock));
             }
         } catch (SQLException e) {
             e.printStackTrace();
