@@ -23,6 +23,8 @@ import javax.swing.event.DocumentListener;
 import java.text.Normalizer;
 import java.util.regex.Pattern;
 import java.util.ArrayList;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class TrangChu extends javax.swing.JFrame {
 
@@ -335,87 +337,6 @@ public class TrangChu extends javax.swing.JFrame {
         int g = (int) (Math.random() * 256);
         int b = (int) (Math.random() * 256);
         return new Color(r, g, b);
-    }
-
-    private void showConfirmDeleteButton() {
-        if (confirmDeleteBtn == null) {
-            confirmDeleteBtn = new JButton("Xác nhận xoá");
-            confirmDeleteBtn.setBackground(new Color(255, 69, 69));
-            confirmDeleteBtn.setForeground(Color.WHITE);
-            confirmDeleteBtn.setFont(new Font("Helvetica Neue", Font.BOLD, 16));
-            confirmDeleteBtn.addActionListener(e -> deleteSelectedContacts());
-
-            // Add to layout near the delete button
-            jPanel2.add(confirmDeleteBtn);
-            jPanel2.revalidate();
-            jPanel2.repaint();
-        }
-        confirmDeleteBtn.setVisible(true);
-    }
-
-    private void deleteSelectedContacts() {
-        // Collect all selected contacts' names
-        List<String> selectedContacts = contactCheckboxes.entrySet().stream()
-                .filter(entry -> entry.getValue().isSelected())
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-
-        if (!selectedContacts.isEmpty()) {
-            // Logic to remove the selected contacts from the database
-            try (Connection connection = DatabaseConnection.connect()) {
-                if (connection != null) {
-                    // Iterate over selected contacts and delete them
-                    for (String contactName : selectedContacts) {
-                        String query = "DELETE FROM contacts WHERE username = ?";
-                        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-                            stmt.setString(1, contactName);
-                            stmt.executeUpdate();
-                        }
-                    }
-                    // Remove deleted contacts from UI
-                    users.removeIf(user -> selectedContacts.contains(user.getUsername()));
-                    addContactListToPanel();  // Refresh the contact list
-                } else {
-                    System.out.println("Database connection failed.");
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        } else {
-            System.out.println("No contacts selected.");
-        }
-        confirmDeleteBtn.setVisible(false);  // Hide the confirm button after delete
-    }
-
-    private void deleteContacts(List<String> usernames) {
-        Connection connection = null;
-        try {
-            connection = DatabaseConnection.connect();
-            if (connection != null) {
-                String sql = "DELETE FROM users WHERE username = ?";
-                try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-                    connection.setAutoCommit(false);
-                    for (String username : usernames) {
-                        stmt.setString(1, username);
-                        stmt.addBatch();
-                    }
-                    stmt.executeBatch();
-                    connection.commit();
-                }
-            }
-        } catch (SQLException e) {
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi xoá liên hệ: " + e.getMessage());
-        } finally {
-            DatabaseConnection.close(connection);
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -739,28 +660,175 @@ public class TrangChu extends javax.swing.JFrame {
         addContacts AddContacts = new addContacts();
         AddContacts.setVisible(true);
     }//GEN-LAST:event_AddDanhbaActionPerformed
+ private void deleteSelectedContacts(List<String> selectedContacts) {
+    // Kiểm tra nếu danh sách liên hệ được chọn trống hoặc null
+    if (selectedContacts == null || selectedContacts.isEmpty()) {
+        JOptionPane.showMessageDialog(this,
+                "Không có liên hệ nào được chọn để xóa",
+                "Thông báo",
+                JOptionPane.WARNING_MESSAGE);
+        return;
+    }
 
-    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        isSelectionMode = !isSelectionMode;
+    Connection connection = null;
+    PreparedStatement preparedStatement = null;
 
-        if (isSelectionMode) {
-            // Change button text to "Huỷ"
-            btnDelete.setText("Huỷ");
-            // Show checkboxes
-            contactCheckboxes.values().forEach(checkbox -> checkbox.setVisible(true));
-            // Show confirm delete button
-            showConfirmDeleteButton();
-        } else {
-            // Reset to normal mode
-            btnDelete.setText("Xoá Tất Cả");
-            // Hide checkboxes
-            contactCheckboxes.values().forEach(checkbox -> checkbox.setVisible(false));
-            // Hide confirm button
-            if (confirmDeleteBtn != null) {
-                confirmDeleteBtn.setVisible(false);
+    try {
+        // Kết nối đến cơ sở dữ liệu
+        connection = DatabaseConnection.connect();
+        if (connection != null) {
+            // Tạo câu lệnh SQL để xóa liên hệ (cột 'username' là ví dụ, thay bằng cột phù hợp của bạn)
+            String sql = "DELETE FROM user WHERE username = ?";
+            
+            // Đếm số lượng liên hệ đã xóa
+            int totalDeleted = 0;
+
+            // Lặp qua từng liên hệ và thực hiện xóa
+            for (String contactId : selectedContacts) {
+                // Tạo PreparedStatement mới cho mỗi lần lặp để tránh lỗi trong việc tái sử dụng
+                preparedStatement = connection.prepareStatement(sql);
+                preparedStatement.setString(1, contactId); // Gán giá trị liên hệ vào câu lệnh SQL
+                int rowsAffected = preparedStatement.executeUpdate();
+                totalDeleted += rowsAffected; // Cộng dồn số dòng bị ảnh hưởng
             }
-        }
 
+            // Hiển thị thông báo kết quả xóa
+            if (totalDeleted > 0) {
+                JOptionPane.showMessageDialog(this,
+                        "Đã xóa thành công " + totalDeleted + " liên hệ",
+                        "Thông báo",
+                        JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Không có liên hệ nào được xóa",
+                        "Thông báo",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "Không thể kết nối đến cơ sở dữ liệu",
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    } catch (SQLException e) {
+        // Xử lý lỗi SQL
+        e.printStackTrace();
+        String errorMessage = "Lỗi khi xóa liên hệ: ";
+        errorMessage += e.getMessage() != null ? e.getMessage() : "Không xác định được nguyên nhân";
+        JOptionPane.showMessageDialog(this,
+                errorMessage,
+                "Lỗi",
+                JOptionPane.ERROR_MESSAGE);
+    } finally {
+        // Đóng tài nguyên trong block finally để tránh rò rỉ tài nguyên
+        try {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try {
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+  if (!isSelectionMode) {
+    // Bắt đầu chế độ chọn
+    isSelectionMode = true;
+    btnDelete.setText("Xác nhận xóa");
+
+    // Hiển thị checkbox và tùy chỉnh giao diện
+    contactCheckboxes.values().forEach(checkbox -> {
+        checkbox.setVisible(true);
+        checkbox.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+        checkbox.setFont(new Font("Arial", Font.PLAIN, 14));
+        checkbox.setBackground(new Color(240, 240, 240));
+        checkbox.setOpaque(true);
+        checkbox.setFocusable(false); // Tắt viền khi checkbox được chọn
+    });
+
+    // Thêm nút Hủy nếu chưa có
+    if (confirmDeleteBtn == null) {
+        confirmDeleteBtn = new JButton("Hủy");
+        confirmDeleteBtn.setFont(new Font("Helvetica Neue", Font.BOLD, 16));
+        confirmDeleteBtn.setBackground(new Color(207, 207, 207));
+        confirmDeleteBtn.setFocusPainted(false); // Tắt viền khi nút được chọn
+
+        // Thêm nút Hủy vào cùng hàng với nút Xóa
+        Container parent = btnDelete.getParent();
+        parent.add(confirmDeleteBtn);
+        parent.revalidate();
+        parent.repaint();
+
+        // Xử lý sự kiện cho nút Hủy
+        confirmDeleteBtn.addActionListener(e -> {
+            // Thoát chế độ chọn
+            isSelectionMode = false;
+            btnDelete.setText("Xóa Tất Cả");
+
+            // Ẩn tất cả checkbox
+            contactCheckboxes.values().forEach(checkbox -> checkbox.setVisible(false));
+
+            // Bỏ chọn tất cả checkbox
+            contactCheckboxes.values().forEach(checkbox -> checkbox.setSelected(false));
+
+            // Xóa nút Hủy
+            parent.remove(confirmDeleteBtn);
+            parent.revalidate();
+            parent.repaint();
+            confirmDeleteBtn = null; // Đảm bảo không thêm trùng nút
+        });
+    }
+} else {
+    // Kiểm tra xem có contact nào được chọn không
+    List<String> selectedContacts = contactCheckboxes.entrySet().stream()
+            .filter(entry -> entry.getValue().isSelected())
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toList());
+
+    if (selectedContacts.isEmpty()) {
+        JOptionPane.showMessageDialog(this,
+                "Vui lòng chọn ít nhất một liên hệ để xóa",
+                "Thông báo",
+                JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+ // Hiển thị dialog xác nhận với số lượng liên hệ đã chọn
+int confirm = JOptionPane.showConfirmDialog(this,
+        "Bạn có chắc chắn muốn xóa " + selectedContacts.size() + " liên hệ đã chọn?",
+        "Xác nhận xóa",
+        JOptionPane.YES_NO_OPTION);
+
+
+    if (confirm == JOptionPane.YES_OPTION) {
+        // Thực hiện xóa các contact đã chọn
+        deleteSelectedContacts(selectedContacts);
+
+        // Reset UI
+        isSelectionMode = false;
+        btnDelete.setText("Xóa Tất Cả");
+
+        // Ẩn tất cả checkbox
+        contactCheckboxes.values().forEach(checkbox -> checkbox.setVisible(false));
+
+        // Xóa nút Hủy
+        Container parent = btnDelete.getParent();
+        parent.remove(confirmDeleteBtn);
+        parent.revalidate();
+        parent.repaint();
+        confirmDeleteBtn = null;
+
+        // Cập nhật lại danh sách liên hệ
+        addContactListToPanel();
+    }
+}
     }//GEN-LAST:event_btnDeleteActionPerformed
     public class RoundedBorder extends AbstractBorder {
 
