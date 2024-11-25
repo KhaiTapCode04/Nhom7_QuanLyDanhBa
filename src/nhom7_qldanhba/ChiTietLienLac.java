@@ -31,7 +31,7 @@ public class ChiTietLienLac extends javax.swing.JFrame {
     private byte[] avatarImagePath;
     private boolean isBlock;
 
-    private JButton btnBack, btnEdit, btnStar, btnDelete;
+    private JButton btnBack, btnEdit, btnDelete;
     private JPanel actionButtonsPanel;
     private boolean isStarred = false;
     private JPanel jPanel1, jPanel2;
@@ -177,17 +177,17 @@ public class ChiTietLienLac extends javax.swing.JFrame {
     rightButtons.setBorder(BorderFactory.createEmptyBorder(-12, 0, 0, 0));
 
     btnEdit = createIconButton("✎", 45);  // Nút chỉnh sửa
-    btnStar = createIconButton("☆", 40);   // Nút đánh dấu
+  
     btnDelete = createIconButton("Xoá", 30); // Nút thùng rác (biểu tượng Unicode)
     btnDelete.addActionListener(e -> deleteContact());
  
     // Thêm hiệu ứng đổi màu cho các nút
     addHoverEffect(btnEdit, new Color(0, 122, 204), Color.DARK_GRAY);
-    addHoverEffect(btnStar, new Color(0, 122, 204), Color.DARK_GRAY);
+   
     addHoverEffect(btnDelete, new Color(231, 76, 60), Color.DARK_GRAY); // Màu cho thùng rác
 
     rightButtons.add(btnEdit);
-    rightButtons.add(btnStar);
+   
     rightButtons.add(btnDelete);
 
     // Thêm các nút vào phía Đông (sát phải)
@@ -199,7 +199,8 @@ public class ChiTietLienLac extends javax.swing.JFrame {
       // Thêm ActionListener cho btnEdit để hiển thị trang EditContacts
         btnEdit.addActionListener(e -> {
             editContacts EditContactsPage = new editContacts(idUser, contactName, phone, email, address, note, avatarImagePath);
-            EditContactsPage.setVisible(true);  // Mở trang chỉnh sửa
+            EditContactsPage.setVisible(true);  // Mở trang chỉnh sửaeditComtac
+            EditContactsPage.setLocationRelativeTo(null); 
             dispose();  // Đóng cửa sổ hiện tại nếu cần
         });
 }
