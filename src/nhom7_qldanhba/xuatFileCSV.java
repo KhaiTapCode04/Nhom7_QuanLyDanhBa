@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
 
-public class xuatFileCSV extends javax.swing.JFrame{
+public class xuatFileCSV extends javax.swing.JFrame {
 
     public static void main(String[] args) {
         JFrame frame = new JFrame("Xuất file CSV");
@@ -21,7 +21,6 @@ public class xuatFileCSV extends javax.swing.JFrame{
 
     public static void xuatFileCSV() {
         List<User> users;
-
         // Kết nối cơ sở dữ liệu và lấy dữ liệu
         try (Connection connection = DatabaseConnection.connect()) {
             if (connection != null) {
@@ -40,7 +39,6 @@ public class xuatFileCSV extends javax.swing.JFrame{
                         fileWriter.append(user.getPhone() + ",");
                         fileWriter.append(user.getEmail() + "\n");
                     }
-
                     JOptionPane.showMessageDialog(null, "Xuất file thành công!");
                 } catch (IOException e) {
                     JOptionPane.showMessageDialog(null, "Lỗi khi ghi file: " + e.getMessage());
