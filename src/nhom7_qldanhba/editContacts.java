@@ -8,36 +8,34 @@ import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.awt.geom.Ellipse2D;
-import java.sql.Connection; // Import the Connection class
-import java.sql.PreparedStatement; // Import the PreparedStatement class
-import java.sql.SQLException; // Import the SQLException class
-import java.sql.Timestamp; // Import the Timestamp class
+import java.sql.Connection; 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp; 
 import java.io.FileInputStream;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.sql.ResultSet;
 import java.io.ByteArrayOutputStream;
 
-import java.awt.image.BufferedImage; // Để sử dụng BufferedImage
-import java.io.ByteArrayInputStream; // Để sử dụng ByteArrayInputStream
-import java.io.IOException; // Để xử lý IOException
-import javax.imageio.ImageIO; // Để sử dụng ImageIO
-import javax.swing.ImageIcon; // Để sử dụng ImageIcon
-import javax.swing.JLabel; // Nếu bạn sử dụng JLabel cho imageLabel
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException; 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 
 public class editContacts extends javax.swing.JFrame {
 
-    private File selectedImageFile; // Class-level variable to hold the selected image file
+    private File selectedImageFile; 
     private int contactId;
-    private JLabel imageLabel; // Label to display the image
-
+    private JLabel imageLabel;
+    
     public editContacts(int idUser, String name, String phone, String email, String address, String note, byte[] avatarImage) {
-
-        this.contactId = idUser; // Gán contactId cho biến class-level
+        this.contactId = idUser;
         initComponents();
         setupImageLabel();
 
-        // Assign data to input fields
         this.name.setText(name);
         this.phone.setText(phone);
         this.email.setText(email);
@@ -53,7 +51,7 @@ public class editContacts extends javax.swing.JFrame {
             }
         } else {
             System.err.println("avatarImage is null or empty.");
-            imageLabel.setIcon(null); // Or set a default image
+            imageLabel.setIcon(null);
         }
 
         saveBTN.setBorder(null);
@@ -77,13 +75,12 @@ public class editContacts extends javax.swing.JFrame {
             }
         });
 
-        // Use GridBagLayout for centering
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.weightx = 1.0; // Allow the component to grow horizontally
-        gbc.weighty = 1.0; // Allow the component to grow vertically
-        gbc.anchor = GridBagConstraints.CENTER; // Center the component
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.anchor = GridBagConstraints.CENTER;
         jPanel3.setLayout(new GridBagLayout());
         jPanel3.add(imageLabel, gbc);
     }
@@ -92,10 +89,9 @@ public class editContacts extends javax.swing.JFrame {
         JFileChooser fileChooser = new JFileChooser();
         int returnValue = fileChooser.showOpenDialog(this);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
-            selectedImageFile = fileChooser.getSelectedFile(); // Set the selected file
+            selectedImageFile = fileChooser.getSelectedFile(); 
             try {
                 BufferedImage img = ImageIO.read(selectedImageFile);
-                // Set the circular image as the icon
                 imageLabel.setIcon(new ImageIcon(createCircularImage(img)));
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -122,7 +118,6 @@ public class editContacts extends javax.swing.JFrame {
         int x = (diameter + 12 - scaledWidth) / 2;
         int y = (diameter - scaledHeight) / 2;
 
-        // Vẽ ảnh
         g2d.drawImage(image, x, y, scaledWidth, scaledHeight, null);
         g2d.dispose();
 
@@ -434,7 +429,6 @@ public class editContacts extends javax.swing.JFrame {
 
         byte[] avatarImage = null;
 
-        // Kiểm tra nếu người dùng đã chọn tệp ảnh mới
         if (selectedImageFile != null) {
             try {
                 // Chuyển đổi ảnh thành byte[]
@@ -445,11 +439,11 @@ public class editContacts extends javax.swing.JFrame {
             } catch (IOException e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(this, "Lỗi khi xử lý tệp ảnh: " + e.getMessage());
-                return; // Thoát nếu gặp lỗi
+                return;
             }
         } else {
             // Nếu không có tệp ảnh mới, sử dụng avatar hiện tại
-            avatarImage = getCurrentAvatarFromDatabase(); // Lấy avatar hiện tại từ database
+            avatarImage = getCurrentAvatarFromDatabase();
         }
 
         // Kết nối tới cơ sở dữ liệu
@@ -457,10 +451,8 @@ public class editContacts extends javax.swing.JFrame {
         PreparedStatement preparedStatement = null;
 
         try {
-            // Kết nối tới cơ sở dữ liệu
             connection = DatabaseConnection.connect();
 
-            // Câu lệnh SQL để cập nhật dữ liệu
             String sql = "UPDATE user SET username = ?, phone = ?, email = ?, address = ?, note = ?, avatar = ? WHERE idUSer = ?";
             preparedStatement = connection.prepareStatement(sql);
 
@@ -470,10 +462,9 @@ public class editContacts extends javax.swing.JFrame {
             preparedStatement.setString(3, emailValue);
             preparedStatement.setString(4, addressValue);
             preparedStatement.setString(5, noteValue);
-            preparedStatement.setBytes(6, avatarImage); // Đặt avatar hiện tại hoặc ảnh mới
+            preparedStatement.setBytes(6, avatarImage);
             preparedStatement.setInt(7, contactId);
 
-            // Thực thi câu lệnh cập nhật
             int rowsUpdated = preparedStatement.executeUpdate();
 
             if (rowsUpdated > 0) {
@@ -486,7 +477,6 @@ public class editContacts extends javax.swing.JFrame {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Cập nhật không thành công: " + e.getMessage());
         } finally {
-            // Đóng kết nối
             DatabaseConnection.close(connection);
             try {
                 if (preparedStatement != null) {
@@ -531,7 +521,7 @@ public class editContacts extends javax.swing.JFrame {
             }
         }
 
-        return null; // Nếu không lấy được ảnh, trả về null
+        return null;
     }
     private void addressActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addressActionPerformed
         // TODO add your handling code here:
@@ -546,32 +536,27 @@ public class editContacts extends javax.swing.JFrame {
     }//GEN-LAST:event_emailActionPerformed
 
     private void backBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBTNActionPerformed
-        // TODO add your handling code here:
-        // Đóng JFrame hiện tại (addContacts)
-        this.dispose(); // Hoặc bạn có thể sử dụng setVisible(false);
-
-        // Hiển thị JFrame của TrangChu
+        this.dispose();
         TrangChu trangChu = new TrangChu();
         trangChu.setVisible(true);
         trangChu.setLocationRelativeTo(null); 
-
     }//GEN-LAST:event_backBTNActionPerformed
 
     private void setPlaceholder(JTextField textField, String placeholder) {
-        textField.setForeground(Color.LIGHT_GRAY); // Màu chữ cho placeholder
+        textField.setForeground(Color.LIGHT_GRAY); 
         textField.setText(placeholder);
 
         textField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 if (textField.getText().equals(placeholder)) {
                     textField.setText("");
-                    textField.setForeground(Color.BLACK); // Màu chữ khi có nội dung
+                    textField.setForeground(Color.BLACK);
                 }
             }
 
             public void focusLost(java.awt.event.FocusEvent evt) {
                 if (textField.getText().isEmpty()) {
-                    textField.setForeground(Color.GRAY); // Màu chữ cho placeholder
+                    textField.setForeground(Color.GRAY);
                     textField.setText(placeholder);
                 }
             }
@@ -596,22 +581,6 @@ public class editContacts extends javax.swing.JFrame {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(editContacts.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
 
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -629,7 +598,6 @@ public class editContacts extends javax.swing.JFrame {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(editContacts.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 java.awt.EventQueue.invokeLater(new Runnable() {

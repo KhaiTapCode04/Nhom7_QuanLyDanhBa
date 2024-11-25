@@ -197,8 +197,7 @@ public class TrangChu extends javax.swing.JFrame {
                 .findFirst()
                 .orElse(null);
             if (selectedUser != null) {
-                System.out.println("có lấy dduwwocj user");
-                String contactName = selectedUser.getUsername();
+                String contactName = selectedUser.getUsername().toUpperCase();
                 String firstLetter = contactName.substring(0, 1).toUpperCase();
                 // Tạo JLabel cho ô tròn
                 JLabel circleLabel = new JLabel(firstLetter, SwingConstants.CENTER);
@@ -861,7 +860,7 @@ int confirm = JOptionPane.showConfirmDialog(this,
         java.awt.EventQueue.invokeLater(() -> {
             TrangChu trangChu = new TrangChu();
             trangChu.setVisible(true);
-            trangChu.setLocationRelativeTo(null); 
+            trangChu.setLocationRelativeTo(null); // Căn giữa cửa sổ
         });
     }
 

@@ -5,13 +5,13 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
+
     private static final String DB_URL = "jdbc:mysql://localhost:3306/webdanhba?useSSL=false";
     private static final String USER = "root";
     private static final String PASSWORD = "";
 
     public static Connection connect() {
         try {
-            // Tải driver JDBC (không cần thiết trong Java 8+ nếu driver đã được thêm đúng)
             Class.forName("com.mysql.cj.jdbc.Driver");
             return DriverManager.getConnection(DB_URL, USER, PASSWORD);
         } catch (ClassNotFoundException e) {

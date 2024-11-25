@@ -5,6 +5,7 @@ import java.awt.*;
 import java.sql.*;
 
 public class RegisterForm extends javax.swing.JFrame {
+
     private javax.swing.JTextField txtUsername;
     private javax.swing.JPasswordField txtPassword;
     private javax.swing.JPasswordField txtConfirmPassword;
@@ -84,9 +85,9 @@ public class RegisterForm extends javax.swing.JFrame {
 
         try {
             conn = DatabaseConnection.connect();
-            
+
             // Kiểm tra tên đăng nhập đã tồn tại
-           String checkSql = "SELECT * FROM login WHERE username = ?";
+            String checkSql = "SELECT * FROM login WHERE username = ?";
             checkStmt = conn.prepareStatement(checkSql);
             checkStmt.setString(1, username);
             rs = checkStmt.executeQuery();
@@ -97,7 +98,7 @@ public class RegisterForm extends javax.swing.JFrame {
             }
 
             // Thêm người dùng mới
-          String insertSql = "INSERT INTO login (username, password, phone, email) VALUES (?, ?, ?, ?)";
+            String insertSql = "INSERT INTO login (username, password, phone, email) VALUES (?, ?, ?, ?)";
             pstmt = conn.prepareStatement(insertSql);
             pstmt.setString(1, username);
             pstmt.setString(2, password);
@@ -115,10 +116,18 @@ public class RegisterForm extends javax.swing.JFrame {
         } finally {
             // Đóng tài nguyên
             try {
-                if (rs != null) rs.close();
-                if (checkStmt != null) checkStmt.close();
-                if (pstmt != null) pstmt.close();
-                if (conn != null) DatabaseConnection.close(conn);
+                if (rs != null) {
+                    rs.close();
+                }
+                if (checkStmt != null) {
+                    checkStmt.close();
+                }
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+                if (conn != null) {
+                    DatabaseConnection.close(conn);
+                }
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
