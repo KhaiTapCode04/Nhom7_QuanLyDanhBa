@@ -62,11 +62,10 @@ public class LoginForm extends javax.swing.JFrame {
 
             rs = pstmt.executeQuery();
             if (rs.next()) {
-                // Đăng nhập thành công
                 TrangChu trangChu = new TrangChu();
-                trangChu.setLocationRelativeTo(null); // Đặt cửa sổ TrangChu ở giữa màn hình
+                trangChu.setLocationRelativeTo(null);
                 trangChu.setVisible(true);
-                this.dispose(); // Đóng LoginForm
+                this.dispose();
             } else {
                 JOptionPane.showMessageDialog(this, "Tên đăng nhập hoặc mật khẩu không đúng");
             }
@@ -74,7 +73,6 @@ public class LoginForm extends javax.swing.JFrame {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(this, "Lỗi kết nối: " + ex.getMessage());
         } finally {
-            // Đóng tài nguyên
             try {
                 if (rs != null) {
                     rs.close();

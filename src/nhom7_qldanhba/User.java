@@ -1,6 +1,7 @@
 package nhom7_qldanhba;
 
 public class User {
+
     private int idUser;
     private String username;
     private String email;
@@ -11,11 +12,11 @@ public class User {
     private byte[] avatar;
     private boolean isBlock;
 
-    public User(int idUser, String username , String address, String email, String phone, String note, String createdAt, byte[] avatar, boolean isBlock) {
+    public User(int idUser, String username, String address, String email, String phone, String note, String createdAt, byte[] avatar, boolean isBlock) {
         this.idUser = idUser;
         this.username = username;
         this.email = email;
-        this.phone = phone;        
+        this.phone = phone;
         this.address = address;
         this.note = note;
         this.createdAt = createdAt;
@@ -23,13 +24,35 @@ public class User {
         this.isBlock = isBlock;
     }
 
-    // Getters
-    public int getIdUser() { return idUser; }
-    public String getUsername() { return username; }
-    public String getEmail() { return email; }
-    public String getAddress() { return address; }
-    public String getPhone() { return phone; }
-    public String getNote() { return note; }
-    public byte[] getAvatar() { return avatar; }
-    public boolean getIsBlock() { return isBlock; }
+    public int getIdUser() {
+        return idUser;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public byte[] getAvatar() {
+        return avatar;
+    }
+
+    public boolean getIsBlock() {
+        return isBlock;
+    }
 }

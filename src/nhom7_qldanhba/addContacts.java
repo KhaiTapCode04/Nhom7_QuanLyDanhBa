@@ -1,13 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package nhom7_qldanhba;
-
-/**
- *
- * @author My PC
- */
 
 import java.awt.*;
 import java.awt.event.*;
@@ -17,22 +8,22 @@ import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.awt.geom.Ellipse2D;
-import java.sql.Connection; // Import the Connection class
-import java.sql.PreparedStatement; // Import the PreparedStatement class
-import java.sql.SQLException; // Import the SQLException class
-import java.sql.Timestamp; // Import the Timestamp class
-import javax.swing.Timer; // Thêm import Timer
+import java.sql.Connection;
+import java.sql.PreparedStatement; 
+import java.sql.SQLException; 
+import java.sql.Timestamp; 
+import javax.swing.Timer; 
 import java.io.FileInputStream;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.util.regex.Pattern;
-import javax.swing.border.LineBorder; // Để sử dụng LineBorder
-import java.awt.Color; // Để sử dụng Color
+import javax.swing.border.LineBorder;
+import java.awt.Color;
 
 public class addContacts extends javax.swing.JFrame {
-    private File selectedImageFile; // Class-level variable to hold the selected image file
+    private File selectedImageFile;
   
-    private JLabel imageLabel; // Label to display the image
+    private JLabel imageLabel;
     
     public addContacts() {
         initComponents();
@@ -42,8 +33,8 @@ public class addContacts extends javax.swing.JFrame {
         setPlaceholder(addAddress, "Địa chỉ");
         setPlaceholder(addPhone, "Số điện thoại");
         setPlaceholder(addEmail, "Email");
-        addBTN.setBorder(null); // Xóa border
-        backBTN.setBorder(null); // Xóa border
+        addBTN.setBorder(null);
+        backBTN.setBorder(null);
         setLocationRelativeTo(null); // Căn giữa form trên màn hình
         
         // Thêm DocumentListener cho số điện thoại
@@ -108,13 +99,13 @@ public class addContacts extends javax.swing.JFrame {
         });
         
 
-        // Use GridBagLayout for centering
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.weightx = 1.0; // Allow the component to grow horizontally
-        gbc.weighty = 1.0; // Allow the component to grow vertically
-        gbc.anchor = GridBagConstraints.CENTER; // Center the component
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.anchor = GridBagConstraints.CENTER; 
         jPanel3.setLayout(new GridBagLayout());
         jPanel3.add(imageLabel, gbc);
     }
@@ -123,10 +114,9 @@ public class addContacts extends javax.swing.JFrame {
     JFileChooser fileChooser = new JFileChooser();
     int returnValue = fileChooser.showOpenDialog(this);
     if (returnValue == JFileChooser.APPROVE_OPTION) {
-        selectedImageFile = fileChooser.getSelectedFile(); // Set the selected file
+        selectedImageFile = fileChooser.getSelectedFile();
         try {
             BufferedImage img = ImageIO.read(selectedImageFile);
-            // Set the circular image as the icon
             imageLabel.setIcon(new ImageIcon(createCircularImage(img)));
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -162,44 +152,38 @@ public class addContacts extends javax.swing.JFrame {
     
     private void setPanelError(JPanel panel, boolean isError) {
         if (isError) {
-            panel.setBorder(new LineBorder(Color.RED, 1)); // Đặt viền màu đỏ
+            panel.setBorder(new LineBorder(Color.RED, 1)); 
         } else {
-            panel.setBorder(new LineBorder(Color.BLACK, 1)); // Đặt viền về màu xám (hoặc màu mặc định)
+            panel.setBorder(new LineBorder(Color.BLACK, 1));
         }
     }
 
     private boolean validatePhone(String phone) {
         boolean isValid = Pattern.matches("\\d+", phone);
-        setPanelError(jPanel7, !isValid); // Cập nhật màu viền cho jPanel7 nếu có lỗi
+        setPanelError(jPanel7, !isValid);
         return isValid;
     }
     
     private boolean validateName(String username) {
-        boolean isValid = !username.trim().isEmpty(); // Kiểm tra xem tên không rỗng
-        setPanelError(jPanel4, !isValid); // Cập nhật màu viền cho jPanel4 nếu có lỗi
+        boolean isValid = !username.trim().isEmpty();
+        setPanelError(jPanel4, !isValid);
         return isValid;
     }
 
     private boolean validateEmail(String email) {
         boolean isValid = Pattern.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$", email);
 
-        JPanel emailPanel = jPanel8; // assuming jPanel8 is where the email JTextField is placed
+        JPanel emailPanel = jPanel8; 
         if (!isValid && !email.isEmpty()) {
-            emailPanel.setBorder(new LineBorder(Color.RED, 1)); // Highlight in red
+            emailPanel.setBorder(new LineBorder(Color.RED, 1));
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đúng định dạng email");
         } else {
-            emailPanel.setBorder(new LineBorder(Color.GRAY, 1)); // Revert to default on valid or empty
+            emailPanel.setBorder(new LineBorder(Color.GRAY, 1)); 
         }
 
         return isValid;
     }
 
-
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -533,7 +517,7 @@ public class addContacts extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void addName1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addName1ActionPerformed
-        // TODO add your handling code here:
+
     }//GEN-LAST:event_addName1ActionPerformed
 
     private void addBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBTNActionPerformed
@@ -546,7 +530,6 @@ public class addContacts extends javax.swing.JFrame {
     
     // Kiểm tra nếu cả họ và tên không phải là placeholder
     if (!lastName.equals("Họ") && !firstName.equals("Tên")) {
-        // Tách họ thành các phần (trong trường hợp có nhiều họ)
         String[] lastNames = lastName.split("\\s+");
         
         // Chuyển đổi chữ cái đầu tiên của mỗi phần thành chữ hoa, các chữ còn lại viết thường
@@ -564,15 +547,12 @@ public class addContacts extends javax.swing.JFrame {
         String restChars = firstName.substring(1).toLowerCase();
         firstName = firstChar + restChars;
         
-        // Ghép họ và tên lại
         fullName = String.join(" ", lastNames) + " " + firstName;
     } else {
-        // Nếu một trong hai trường là placeholder, báo lỗi
         JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ họ và tên");
         return;
     }
     
-    // Kiểm tra tên có hợp lệ không
     boolean isNameValid = !fullName.trim().isEmpty();
     if (!isNameValid) {
         JOptionPane.showMessageDialog(this, "Vui lòng nhập tên");
@@ -585,7 +565,6 @@ public class addContacts extends javax.swing.JFrame {
     String note = addNote.getText().trim();
     java.sql.Timestamp createdAt = new java.sql.Timestamp(System.currentTimeMillis());
 
-    // Kiểm tra tính hợp lệ của số điện thoại
     boolean isPhoneValid = validatePhone(phone);
     if (!isPhoneValid) {
         JOptionPane.showMessageDialog(this, "Vui lòng nhập đúng định dạng số điện thoại");
@@ -603,9 +582,7 @@ public class addContacts extends javax.swing.JFrame {
             preparedStatement.setString(4, note); 
             preparedStatement.setTimestamp(5, createdAt);
            
-            // Check if an image file was selected
             if (selectedImageFile != null) {
-                // Convert the selected image to a byte array
                 byte[] imageBytes = new byte[(int) selectedImageFile.length()];
                 try (FileInputStream fis = new FileInputStream(selectedImageFile)) {
                     fis.read(imageBytes);
@@ -620,10 +597,8 @@ public class addContacts extends javax.swing.JFrame {
             if (rowsAffected > 0) {
                 JOptionPane.showMessageDialog(this, "Thêm liên hệ thành công!");
                 
-                // Sau khi hiển thị thông báo thành công, đóng form hiện tại
                 this.dispose();
                 
-                // Mở form TrangChu và đặt nó ở giữa màn hình
                 TrangChu trangChu = new TrangChu();
                 trangChu.setLocationRelativeTo(null);
                 trangChu.setVisible(true);
@@ -662,13 +637,12 @@ public class addContacts extends javax.swing.JFrame {
     }//GEN-LAST:event_addEmailActionPerformed
 
     private void backBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBTNActionPerformed
-       // Đóng JFrame hiện tại (addContacts)
-    this.dispose();
 
-    // Hiển thị JFrame của TrangChu và đặt nó ở giữa màn hình
-    TrangChu trangChu = new TrangChu();
-    trangChu.setLocationRelativeTo(null); // Thêm dòng này để form xuất hiện giữa màn hình
-    trangChu.setVisible(true);
+        this.dispose();
+
+        TrangChu trangChu = new TrangChu();
+        trangChu.setLocationRelativeTo(null);
+        trangChu.setVisible(true);
 
     }//GEN-LAST:event_backBTNActionPerformed
 
@@ -677,20 +651,20 @@ public class addContacts extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextField1ActionPerformed
 
     private void setPlaceholder(JTextField textField, String placeholder) {
-        textField.setForeground(Color.LIGHT_GRAY); // Màu chữ cho placeholder
+        textField.setForeground(Color.LIGHT_GRAY);
         textField.setText(placeholder);
 
         textField.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 if (textField.getText().equals(placeholder)) {
                     textField.setText("");
-                    textField.setForeground(Color.BLACK); // Màu chữ khi có nội dung
+                    textField.setForeground(Color.BLACK);
                 }
             }
 
             public void focusLost(java.awt.event.FocusEvent evt) {
                 if (textField.getText().isEmpty()) {
-                    textField.setForeground(Color.GRAY); // Màu chữ cho placeholder
+                    textField.setForeground(Color.GRAY); 
                     textField.setText(placeholder);
                 }
             }

@@ -9,7 +9,7 @@ import java.util.List;
 
 public class UserDataFetcher {
     public static List<User> fetchData(Connection connection) {
-        String query = "SELECT * FROM user"; // Lấy tất cả người dùng
+        String query = "SELECT * FROM user";
         List<User> users = new ArrayList<>();
 
         try (PreparedStatement statement = connection.prepareStatement(query);

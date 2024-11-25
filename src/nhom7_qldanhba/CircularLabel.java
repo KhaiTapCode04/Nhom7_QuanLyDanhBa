@@ -1,4 +1,3 @@
-
 package nhom7_qldanhba;
 
 import javax.swing.*;
@@ -6,9 +5,10 @@ import java.awt.*;
 import java.awt.geom.Ellipse2D;
 
 class CircularLabel extends JLabel {
+
     public CircularLabel(String text) {
         super(text);
-        setOpaque(false); // Cho phép vẽ hình tròn
+        setOpaque(false);
         setHorizontalAlignment(SwingConstants.CENTER);
         setVerticalAlignment(SwingConstants.CENTER);
     }
@@ -26,17 +26,17 @@ class CircularLabel extends JLabel {
 
     @Override
     public void paintBorder(Graphics g) {
-        // Vẽ viền hình tròn
+
         Graphics2D g2d = (Graphics2D) g.create();
-        g2d.setColor(getForeground()); // Màu viền
-        g2d.setStroke(new BasicStroke(3)); // Độ dày viền
+        g2d.setColor(getForeground());
+        g2d.setStroke(new BasicStroke(3));
         g2d.draw(new Ellipse2D.Double(0, 0, getWidth(), getHeight()));
         g2d.dispose();
     }
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(140, 140); // Kích thước ưa thích
+        return new Dimension(140, 140);
     }
 
     @Override
