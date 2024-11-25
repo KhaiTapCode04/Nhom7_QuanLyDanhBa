@@ -39,8 +39,7 @@ public class TrangChu extends javax.swing.JFrame {
     public TrangChu() {
         initComponents();
         vietnameseCollator = Collator.getInstance(new Locale("vi", "VN"));
-        vietnameseCollator.setStrength(Collator.TERTIARY);// So sánh không phân biệt dấu
-
+        vietnameseCollator.setStrength(Collator.TERTIARY);
         // Thêm DocumentListener cho real-time search
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -86,7 +85,6 @@ public class TrangChu extends javax.swing.JFrame {
         });
     }
     // Hàm lọc danh bạ theo từ khóa tìm kiếm
-
     private void filterContacts() {
         String searchText = txtSearch.getText();
         if (searchText.equals("Tìm kiếm...")) {
@@ -654,11 +652,9 @@ public class TrangChu extends javax.swing.JFrame {
     }//GEN-LAST:event_ExportBtnActionPerformed
 
     private void AddDanhbaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddDanhbaActionPerformed
-        this.dispose(); // Hoặc bạn có thể sử dụng setVisible(false);
-
-        // Hiển thị JFrame của TrangChu
-        addContacts AddContacts = new addContacts();
-        AddContacts.setVisible(true);
+   addContacts addForm = new addContacts();
+    addForm.setVisible(true);
+    this.dispose(); // hoặc this.setVisible(false) nếu bạn muốn giữ form TrangChu
     }//GEN-LAST:event_AddDanhbaActionPerformed
  private void deleteSelectedContacts(List<String> selectedContacts) {
     // Kiểm tra nếu danh sách liên hệ được chọn trống hoặc null

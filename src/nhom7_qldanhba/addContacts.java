@@ -31,9 +31,7 @@ import java.awt.Color; // Để sử dụng Color
 
 public class addContacts extends javax.swing.JFrame {
     private File selectedImageFile; // Class-level variable to hold the selected image file
-    /**
-     * Creates new form editContracts
-     */
+  
     private JLabel imageLabel; // Label to display the image
     
     public addContacts() {
@@ -46,6 +44,7 @@ public class addContacts extends javax.swing.JFrame {
         setPlaceholder(addEmail, "Email");
         addBTN.setBorder(null); // Xóa border
         backBTN.setBorder(null); // Xóa border
+        setLocationRelativeTo(null); // Căn giữa form trên màn hình
         
         // Thêm DocumentListener cho số điện thoại
         addPhone.getDocument().addDocumentListener(new DocumentListener() {
@@ -538,90 +537,112 @@ public class addContacts extends javax.swing.JFrame {
     }//GEN-LAST:event_addName1ActionPerformed
 
     private void addBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBTNActionPerformed
-        // TODO add your handling code here:
-        String username = addName1.getText().trim(); // Tên
-        String lastName = addName2.getText().trim(); // Họ
-
-        // Kiểm tra nếu lastName không rỗng và không phải là placeholder
-        if (!lastName.isEmpty() && !lastName.equals("Họ")) {
-            // Ghép họ (lastName) và tên (username) với họ đứng trước
-            username = lastName + " " + username;
-        }
+    // Lấy họ và tên từ các trường nhập liệu và loại bỏ khoảng trắng thừa
+    String lastName = addName2.getText().trim(); // Họ
+    String firstName = addName1.getText().trim(); // Tên
+    
+    // Xử lý tên theo chuẩn Việt Nam
+    String fullName = "";
+    
+    // Kiểm tra nếu cả họ và tên không phải là placeholder
+    if (!lastName.equals("Họ") && !firstName.equals("Tên")) {
+        // Tách họ thành các phần (trong trường hợp có nhiều họ)
+        String[] lastNames = lastName.split("\\s+");
         
-        String email = addEmail.getText().trim();
-        String phone = addPhone.getText().trim(); // Phone with country code
-        String address = addAddress.getText().trim();
-        String note = addNote.getText().trim();
-        java.sql.Timestamp createdAt = new java.sql.Timestamp(System.currentTimeMillis());
-
-        // Kiểm tra tính hợp lệ của số điện thoại
-        boolean isPhoneValid = validatePhone(phone);
-
-        // Nếu số điện thoại không hợp lệ, dừng lại
-        if (!isPhoneValid) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đúng định dạng số điện thoại");
-            return; // Nếu có lỗi, không tiếp tục
-        }
-        
-        boolean isNameValid = validateName(username);
-
-        // Kiểm tra nếu username là placeholder
-        if (username.equals("Tên")) {
-            isNameValid = false;
-        }
-
-        // Nếu tên không hợp lệ, dừng lại
-        if (!isNameValid) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập tên");
-            return; // Nếu có lỗi, không tiếp tục
-        }
-        
-
-        // Database connection
-        Connection connection = DatabaseConnection.connect();
-        if (connection != null) {
-            String sql = "INSERT INTO user (username, email, phone, note, created_at, avatar, address) VALUES (?, ?, ?, ?, ?, ?, ?)";
-            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                preparedStatement.setString(1, username);
-                preparedStatement.setString(2, email); // Email có thể là rỗng
-                preparedStatement.setString(3, phone);
-                preparedStatement.setString(4, note);
-                preparedStatement.setTimestamp(5, createdAt);
-
-                // Check if an image file was selected
-                if (selectedImageFile != null) {
-                    // Convert the selected image to a byte array
-                    byte[] imageBytes = new byte[(int) selectedImageFile.length()];
-                    try (FileInputStream fis = new FileInputStream(selectedImageFile)) {
-                        fis.read(imageBytes);
-                    }
-
-                    // Set the byte array as the avatar
-                    preparedStatement.setBytes(6, imageBytes);
-                } else {
-                    preparedStatement.setNull(6, java.sql.Types.BLOB); // Set NULL if no image is selected
-                }
-                preparedStatement.setString(7, address);
-
-                int rowsAffected = preparedStatement.executeUpdate();
-                if (rowsAffected > 0) {
-                    JOptionPane.showMessageDialog(this, "Thêm liên hệ thành công!");
-                    
-                } else {
-                    JOptionPane.showMessageDialog(this, "Thêm liên hệ thất bại!");
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Lỗi khi thêm liên hệ: " + e.getMessage());
-            } catch (IOException e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Lỗi khi đọc ảnh: " + e.getMessage());
-            } finally {
-                DatabaseConnection.close(connection);
+        // Chuyển đổi chữ cái đầu tiên của mỗi phần thành chữ hoa, các chữ còn lại viết thường
+        for (int i = 0; i < lastNames.length; i++) {
+            if (!lastNames[i].isEmpty()) {
+                // Xử lý Unicode cho tiếng Việt
+                String firstChar = lastNames[i].substring(0, 1).toUpperCase();
+                String restChars = lastNames[i].substring(1).toLowerCase();
+                lastNames[i] = firstChar + restChars;
             }
-        } else {
-            JOptionPane.showMessageDialog(this, "Không thể kết nối đến cơ sở dữ liệu!");
         }
+        
+        // Xử lý tên: chữ cái đầu viết hoa, các chữ còn lại viết thường
+        String firstChar = firstName.substring(0, 1).toUpperCase();
+        String restChars = firstName.substring(1).toLowerCase();
+        firstName = firstChar + restChars;
+        
+        // Ghép họ và tên lại
+        fullName = String.join(" ", lastNames) + " " + firstName;
+    } else {
+        // Nếu một trong hai trường là placeholder, báo lỗi
+        JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ họ và tên");
+        return;
+    }
+    
+    // Kiểm tra tên có hợp lệ không
+    boolean isNameValid = !fullName.trim().isEmpty();
+    if (!isNameValid) {
+        JOptionPane.showMessageDialog(this, "Vui lòng nhập tên");
+        return;
+    }
+    
+    String email = addEmail.getText().trim();
+    String phone = addPhone.getText().trim();
+    String address = addAddress.getText().trim();
+    String note = addNote.getText().trim();
+    java.sql.Timestamp createdAt = new java.sql.Timestamp(System.currentTimeMillis());
+
+    // Kiểm tra tính hợp lệ của số điện thoại
+    boolean isPhoneValid = validatePhone(phone);
+    if (!isPhoneValid) {
+        JOptionPane.showMessageDialog(this, "Vui lòng nhập đúng định dạng số điện thoại");
+        return;
+    }
+
+    // Database connection
+    Connection connection = DatabaseConnection.connect();
+    if (connection != null) {
+        String sql = "INSERT INTO user (username, email, phone, note, created_at, avatar, address) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, fullName);
+            preparedStatement.setString(2, email);
+            preparedStatement.setString(3, phone);
+            preparedStatement.setString(4, note); 
+            preparedStatement.setTimestamp(5, createdAt);
+           
+            // Check if an image file was selected
+            if (selectedImageFile != null) {
+                // Convert the selected image to a byte array
+                byte[] imageBytes = new byte[(int) selectedImageFile.length()];
+                try (FileInputStream fis = new FileInputStream(selectedImageFile)) {
+                    fis.read(imageBytes);
+                }
+                preparedStatement.setBytes(6, imageBytes);
+            } else {
+                preparedStatement.setNull(6, java.sql.Types.BLOB);
+            }
+            preparedStatement.setString(7, address);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(this, "Thêm liên hệ thành công!");
+                
+                // Sau khi hiển thị thông báo thành công, đóng form hiện tại
+                this.dispose();
+                
+                // Mở form TrangChu và đặt nó ở giữa màn hình
+                TrangChu trangChu = new TrangChu();
+                trangChu.setLocationRelativeTo(null);
+                trangChu.setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "Thêm liên hệ thất bại!");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi khi thêm liên hệ: " + e.getMessage());
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Lỗi khi đọc ảnh: " + e.getMessage());
+        } finally {
+            DatabaseConnection.close(connection);
+        }
+    } else {
+        JOptionPane.showMessageDialog(this, "Không thể kết nối đến cơ sở dữ liệu!");
+    }
+
     }//GEN-LAST:event_addBTNActionPerformed
 
     private void addName2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addName2ActionPerformed
@@ -641,13 +662,13 @@ public class addContacts extends javax.swing.JFrame {
     }//GEN-LAST:event_addEmailActionPerformed
 
     private void backBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBTNActionPerformed
-        // TODO add your handling code here:
-        // Đóng JFrame hiện tại (addContacts)
-        this.dispose(); // Hoặc bạn có thể sử dụng setVisible(false);
+       // Đóng JFrame hiện tại (addContacts)
+    this.dispose();
 
-        // Hiển thị JFrame của TrangChu
-        TrangChu trangChu = new TrangChu();
-        trangChu.setVisible(true);
+    // Hiển thị JFrame của TrangChu và đặt nó ở giữa màn hình
+    TrangChu trangChu = new TrangChu();
+    trangChu.setLocationRelativeTo(null); // Thêm dòng này để form xuất hiện giữa màn hình
+    trangChu.setVisible(true);
 
     }//GEN-LAST:event_backBTNActionPerformed
 
@@ -655,11 +676,6 @@ public class addContacts extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField1ActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    
-    
     private void setPlaceholder(JTextField textField, String placeholder) {
         textField.setForeground(Color.LIGHT_GRAY); // Màu chữ cho placeholder
         textField.setText(placeholder);
@@ -682,11 +698,7 @@ public class addContacts extends javax.swing.JFrame {
     }
     
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
+
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -703,45 +715,12 @@ public class addContacts extends javax.swing.JFrame {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(addContacts.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-
-        /* Create and display the form */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(addContacts.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(addContacts.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(addContacts.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(addContacts.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-
+   
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new addContacts().setVisible(true);
+               
             }
         });
     }
