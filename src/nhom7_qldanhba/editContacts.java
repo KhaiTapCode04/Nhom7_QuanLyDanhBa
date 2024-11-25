@@ -553,6 +553,7 @@ public class editContacts extends javax.swing.JFrame {
         // Hiển thị JFrame của TrangChu
         TrangChu trangChu = new TrangChu();
         trangChu.setVisible(true);
+        trangChu.setLocationRelativeTo(null); 
 
     }//GEN-LAST:event_backBTNActionPerformed
 

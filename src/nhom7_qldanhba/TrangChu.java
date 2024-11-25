@@ -161,7 +161,7 @@ public class TrangChu extends javax.swing.JFrame {
 
                     // Thêm contacts vào group
                     for (User user : sortedUsers) {
-                        JPanel contactPanel = createContactItem(user.getUsername().toUpperCase());
+                        JPanel contactPanel = createContactItem(user.getIdUser());
                         groupPanel.add(contactPanel);
                         groupPanel.add(Box.createRigidArea(new Dimension(0, 12)));
                     }
@@ -186,119 +186,125 @@ public class TrangChu extends javax.swing.JFrame {
         txtHomeScroll.setPreferredSize(new Dimension(500, 400));
     }
 
-    private JPanel createContactItem(String contactName) {
+    private JPanel createContactItem(int userID) {
 
         JPanel contactPanel = new JPanel();
         contactPanel.setLayout(new BoxLayout(contactPanel, BoxLayout.X_AXIS));
         contactPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         // Lấy chữ cái đầu tiên của tên liên lạc
-        String firstLetter = contactName.substring(0, 1).toUpperCase();
+            User selectedUser = users.stream()
+                .filter(user -> user.getIdUser() == userID)
+                .findFirst()
+                .orElse(null);
+            if (selectedUser != null) {
+                System.out.println("có lấy dduwwocj user");
+                String contactName = selectedUser.getUsername();
+                String firstLetter = contactName.substring(0, 1).toUpperCase();
+                // Tạo JLabel cho ô tròn
+                JLabel circleLabel = new JLabel(firstLetter, SwingConstants.CENTER);
 
-        // Tạo JLabel cho ô tròn
-        JLabel circleLabel = new JLabel(firstLetter, SwingConstants.CENTER);
+                circleLabel.setPreferredSize(new Dimension(100, 100));
+                circleLabel.setMaximumSize(new Dimension(100, 100));
+                circleLabel.setMinimumSize(new Dimension(100, 100));
+                circleLabel.setOpaque(true);
+                circleLabel.setFont(new Font("Arial", Font.BOLD, 30));
 
-        circleLabel.setPreferredSize(new Dimension(100, 100));
-        circleLabel.setMaximumSize(new Dimension(100, 100));
-        circleLabel.setMinimumSize(new Dimension(100, 100));
-        circleLabel.setOpaque(true);
-        circleLabel.setFont(new Font("Arial", Font.BOLD, 30));
+                // Create checkbox
+                JCheckBox checkbox = new JCheckBox();
+                checkbox.setVisible(isSelectionMode);
+                contactCheckboxes.put(contactName, checkbox);
+                // Add checkbox to panel
+                contactPanel.add(checkbox);
+                contactPanel.add(Box.createRigidArea(new Dimension(10, 0)));
 
-        // Create checkbox
-        JCheckBox checkbox = new JCheckBox();
-        checkbox.setVisible(isSelectionMode);
-        contactCheckboxes.put(contactName, checkbox);
-        // Add checkbox to panel
-        contactPanel.add(checkbox);
-        contactPanel.add(Box.createRigidArea(new Dimension(10, 0)));
-
-        // Thiết lập màu nền ngẫu nhiên cho JLabel
-        Color backgroundColor = getRandomColor();
-        circleLabel.setBackground(backgroundColor);
-        contactColors.put(contactName, backgroundColor);
-
-        // Chọn màu chữ (đen hoặc trắng) dựa trên độ sáng của màu nền
-        circleLabel.setForeground(getContrastingColor(backgroundColor));
-
-        // Đảm bảo kích thước JLabel là hình vuông
-        circleLabel.setMaximumSize(new Dimension(45, 45));
-        circleLabel.setMinimumSize(new Dimension(45, 45));
-
-        // Tạo JLabel cho tên liên lạc
-        JLabel nameLabel = new JLabel(contactName);
-        nameLabel.setFont(new Font("Arial", Font.PLAIN, 28));
-
-        // Gộp ô tròn và tên liên lạc vào một JPanel
-        contactPanel.setLayout(new BoxLayout(contactPanel, BoxLayout.X_AXIS));
-        contactPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        contactPanel.add(circleLabel);
-        contactPanel.add(Box.createRigidArea(new Dimension(20, 0)));
-        contactPanel.add(nameLabel);
-
-        contactPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            private Color originalPanelBackground;
-            private Font originalNameFont;
-
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                // Lưu màu nền gốc và font gốc
-                originalPanelBackground = contactPanel.getBackground();
-                originalNameFont = nameLabel.getFont();
-
-                contactPanel.setBackground(new Color(198, 226, 255));
-                contactPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                nameLabel.setFont(new Font("Arial", Font.BOLD, 35));
-
-                // In đậm tên liên lạc
-                nameLabel.setFont(new Font("Arial", Font.BOLD, 28));
-
-                // Giữ nguyên màu nền của ô chữ cái
+                // Thiết lập màu nền ngẫu nhiên cho JLabel
+                Color backgroundColor = getRandomColor();
                 circleLabel.setBackground(backgroundColor);
+                contactColors.put(contactName, backgroundColor);
+
+                // Chọn màu chữ (đen hoặc trắng) dựa trên độ sáng của màu nền
+                circleLabel.setForeground(getContrastingColor(backgroundColor));
+
+                // Đảm bảo kích thước JLabel là hình vuông
+                circleLabel.setMaximumSize(new Dimension(45, 45));
+                circleLabel.setMinimumSize(new Dimension(45, 45));
+
+                // Tạo JLabel cho tên liên lạc
+                JLabel nameLabel = new JLabel(contactName);
+                nameLabel.setFont(new Font("Arial", Font.PLAIN, 28));
+
+                // Gộp ô tròn và tên liên lạc vào một JPanel
+                contactPanel.setLayout(new BoxLayout(contactPanel, BoxLayout.X_AXIS));
+                contactPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+                contactPanel.add(circleLabel);
+                contactPanel.add(Box.createRigidArea(new Dimension(20, 0)));
+                contactPanel.add(nameLabel);
+
+                contactPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+                    private Color originalPanelBackground;
+                    private Font originalNameFont;
+
+                    @Override
+                    public void mouseEntered(java.awt.event.MouseEvent evt) {
+                        // Lưu màu nền gốc và font gốc
+                        originalPanelBackground = contactPanel.getBackground();
+                        originalNameFont = nameLabel.getFont();
+
+                        contactPanel.setBackground(new Color(198, 226, 255));
+                        contactPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                        nameLabel.setFont(new Font("Arial", Font.BOLD, 35));
+
+                        // In đậm tên liên lạc
+                        nameLabel.setFont(new Font("Arial", Font.BOLD, 28));
+
+                        // Giữ nguyên màu nền của ô chữ cái
+                        circleLabel.setBackground(backgroundColor);
+                    }
+
+                    @Override
+                    public void mouseExited(java.awt.event.MouseEvent evt) {
+                        // Khôi phục màu nền ban đầu
+                        contactPanel.setBackground(originalPanelBackground);
+                        contactPanel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+
+                        // Khôi phục font ban đầu
+                        nameLabel.setFont(originalNameFont);
+
+                        // Khôi phục màu nền của ô chữ cái
+                        circleLabel.setBackground(backgroundColor);
+                    }
+
+                    @Override
+                    public void mouseClicked(java.awt.event.MouseEvent evt) {
+                        // Tìm thông tin của user hiện tại
+                        User selectedUser = users.stream()
+                                .filter(user -> user.getIdUser() == userID)
+                                .findFirst()
+                                .orElse(null);
+
+                        if (selectedUser != null) {
+                            // Mở màn hình chi tiết liên lạc với thông tin từ user
+                            ChiTietLienLac chiTietLienLac = new ChiTietLienLac(
+                                    selectedUser.getIdUser(),
+                                    selectedUser.getUsername(),
+                                    selectedUser.getPhone(),
+                                    selectedUser.getEmail(),
+                                    selectedUser.getAddress(),
+                                    selectedUser.getNote(),
+                                    selectedUser.getAvatar(),
+                                    selectedUser.getIsBlock(),
+                                    TrangChu.this
+                            );
+                            chiTietLienLac.setVisible(true);
+
+                            // Ẩn màn hình chính
+                            setVisible(false);
+                        } else {
+                            System.out.println("Không tìm thấy thông tin của user: " + contactName);
+                        }
+                    }
+                });
             }
-
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                // Khôi phục màu nền ban đầu
-                contactPanel.setBackground(originalPanelBackground);
-                contactPanel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-
-                // Khôi phục font ban đầu
-                nameLabel.setFont(originalNameFont);
-
-                // Khôi phục màu nền của ô chữ cái
-                circleLabel.setBackground(backgroundColor);
-            }
-
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                // Tìm thông tin của user hiện tại
-                User selectedUser = users.stream()
-                        .filter(user -> user.getUsername().toUpperCase().equals(contactName))
-                        .findFirst()
-                        .orElse(null);
-
-                if (selectedUser != null) {
-                    // Mở màn hình chi tiết liên lạc với thông tin từ user
-                    ChiTietLienLac chiTietLienLac = new ChiTietLienLac(
-                            selectedUser.getIdUser(),
-                            selectedUser.getUsername(),
-                            selectedUser.getPhone(),
-                            selectedUser.getEmail(),
-                            selectedUser.getAddress(),
-                            selectedUser.getNote(),
-                            selectedUser.getAvatar(),
-                            selectedUser.getIsBlock(),
-                            TrangChu.this
-                    );
-                    chiTietLienLac.setVisible(true);
-
-                    // Ẩn màn hình chính
-                    setVisible(false);
-                } else {
-                    System.out.println("Không tìm thấy thông tin của user: " + contactName);
-                }
-            }
-        });
-
         return contactPanel;
     }
 
@@ -578,7 +584,7 @@ public class TrangChu extends javax.swing.JFrame {
 
                 // Hiển thị từng contact trong nhóm
                 for (User user : sortedUsers) {
-                    JPanel contactPanel = createContactItem(user.getUsername().toUpperCase());
+                    JPanel contactPanel = createContactItem(user.getIdUser());
                     contactPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
                     mainPanel.add(contactPanel);
                     mainPanel.add(Box.createRigidArea(new Dimension(0, 15)));
@@ -855,7 +861,7 @@ int confirm = JOptionPane.showConfirmDialog(this,
         java.awt.EventQueue.invokeLater(() -> {
             TrangChu trangChu = new TrangChu();
             trangChu.setVisible(true);
-            trangChu.setLocationRelativeTo(null); // Căn giữa cửa sổ
+            trangChu.setLocationRelativeTo(null); 
         });
     }
 
