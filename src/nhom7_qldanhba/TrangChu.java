@@ -84,6 +84,7 @@ public class TrangChu extends javax.swing.JFrame {
             }
         });
     }
+
     // Hàm lọc danh bạ theo từ khóa tìm kiếm
     private void filterContacts() {
         String searchText = txtSearch.getText();
@@ -192,118 +193,118 @@ public class TrangChu extends javax.swing.JFrame {
         contactPanel.setLayout(new BoxLayout(contactPanel, BoxLayout.X_AXIS));
         contactPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
         // Lấy chữ cái đầu tiên của tên liên lạc
-            User selectedUser = users.stream()
+        User selectedUser = users.stream()
                 .filter(user -> user.getIdUser() == userID)
                 .findFirst()
                 .orElse(null);
-            if (selectedUser != null) {
-                String contactName = selectedUser.getUsername().toUpperCase();
-                String firstLetter = contactName.substring(0, 1).toUpperCase();
-                // Tạo JLabel cho ô tròn
-                JLabel circleLabel = new JLabel(firstLetter, SwingConstants.CENTER);
+        if (selectedUser != null) {
+            String contactName = selectedUser.getUsername().toUpperCase();
+            String firstLetter = contactName.substring(0, 1).toUpperCase();
+            // Tạo JLabel cho ô tròn
+            JLabel circleLabel = new JLabel(firstLetter, SwingConstants.CENTER);
 
-                circleLabel.setPreferredSize(new Dimension(100, 100));
-                circleLabel.setMaximumSize(new Dimension(100, 100));
-                circleLabel.setMinimumSize(new Dimension(100, 100));
-                circleLabel.setOpaque(true);
-                circleLabel.setFont(new Font("Arial", Font.BOLD, 30));
+            circleLabel.setPreferredSize(new Dimension(100, 100));
+            circleLabel.setMaximumSize(new Dimension(100, 100));
+            circleLabel.setMinimumSize(new Dimension(100, 100));
+            circleLabel.setOpaque(true);
+            circleLabel.setFont(new Font("Arial", Font.BOLD, 30));
 
-                // Create checkbox
-                JCheckBox checkbox = new JCheckBox();
-                checkbox.setVisible(isSelectionMode);
-                contactCheckboxes.put(contactName, checkbox);
-                // Add checkbox to panel
-                contactPanel.add(checkbox);
-                contactPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+            // Create checkbox
+            JCheckBox checkbox = new JCheckBox();
+            checkbox.setVisible(isSelectionMode);
+            contactCheckboxes.put(contactName, checkbox);
+            // Add checkbox to panel
+            contactPanel.add(checkbox);
+            contactPanel.add(Box.createRigidArea(new Dimension(10, 0)));
 
-                // Thiết lập màu nền ngẫu nhiên cho JLabel
-                Color backgroundColor = getRandomColor();
-                circleLabel.setBackground(backgroundColor);
-                contactColors.put(contactName, backgroundColor);
+            // Thiết lập màu nền ngẫu nhiên cho JLabel
+            Color backgroundColor = getRandomColor();
+            circleLabel.setBackground(backgroundColor);
+            contactColors.put(contactName, backgroundColor);
 
-                // Chọn màu chữ (đen hoặc trắng) dựa trên độ sáng của màu nền
-                circleLabel.setForeground(getContrastingColor(backgroundColor));
+            // Chọn màu chữ (đen hoặc trắng) dựa trên độ sáng của màu nền
+            circleLabel.setForeground(getContrastingColor(backgroundColor));
 
-                // Đảm bảo kích thước JLabel là hình vuông
-                circleLabel.setMaximumSize(new Dimension(45, 45));
-                circleLabel.setMinimumSize(new Dimension(45, 45));
+            // Đảm bảo kích thước JLabel là hình vuông
+            circleLabel.setMaximumSize(new Dimension(45, 45));
+            circleLabel.setMinimumSize(new Dimension(45, 45));
 
-                // Tạo JLabel cho tên liên lạc
-                JLabel nameLabel = new JLabel(contactName);
-                nameLabel.setFont(new Font("Arial", Font.PLAIN, 28));
+            // Tạo JLabel cho tên liên lạc
+            JLabel nameLabel = new JLabel(contactName);
+            nameLabel.setFont(new Font("Arial", Font.PLAIN, 28));
 
-                // Gộp ô tròn và tên liên lạc vào một JPanel
-                contactPanel.setLayout(new BoxLayout(contactPanel, BoxLayout.X_AXIS));
-                contactPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-                contactPanel.add(circleLabel);
-                contactPanel.add(Box.createRigidArea(new Dimension(20, 0)));
-                contactPanel.add(nameLabel);
+            // Gộp ô tròn và tên liên lạc vào một JPanel
+            contactPanel.setLayout(new BoxLayout(contactPanel, BoxLayout.X_AXIS));
+            contactPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            contactPanel.add(circleLabel);
+            contactPanel.add(Box.createRigidArea(new Dimension(20, 0)));
+            contactPanel.add(nameLabel);
 
-                contactPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-                    private Color originalPanelBackground;
-                    private Font originalNameFont;
+            contactPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+                private Color originalPanelBackground;
+                private Font originalNameFont;
 
-                    @Override
-                    public void mouseEntered(java.awt.event.MouseEvent evt) {
-                        // Lưu màu nền gốc và font gốc
-                        originalPanelBackground = contactPanel.getBackground();
-                        originalNameFont = nameLabel.getFont();
+                @Override
+                public void mouseEntered(java.awt.event.MouseEvent evt) {
+                    // Lưu màu nền gốc và font gốc
+                    originalPanelBackground = contactPanel.getBackground();
+                    originalNameFont = nameLabel.getFont();
 
-                        contactPanel.setBackground(new Color(198, 226, 255));
-                        contactPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                        nameLabel.setFont(new Font("Arial", Font.BOLD, 35));
+                    contactPanel.setBackground(new Color(198, 226, 255));
+                    contactPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                    nameLabel.setFont(new Font("Arial", Font.BOLD, 35));
 
-                        // In đậm tên liên lạc
-                        nameLabel.setFont(new Font("Arial", Font.BOLD, 28));
+                    // In đậm tên liên lạc
+                    nameLabel.setFont(new Font("Arial", Font.BOLD, 28));
 
-                        // Giữ nguyên màu nền của ô chữ cái
-                        circleLabel.setBackground(backgroundColor);
+                    // Giữ nguyên màu nền của ô chữ cái
+                    circleLabel.setBackground(backgroundColor);
+                }
+
+                @Override
+                public void mouseExited(java.awt.event.MouseEvent evt) {
+                    // Khôi phục màu nền ban đầu
+                    contactPanel.setBackground(originalPanelBackground);
+                    contactPanel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+
+                    // Khôi phục font ban đầu
+                    nameLabel.setFont(originalNameFont);
+
+                    // Khôi phục màu nền của ô chữ cái
+                    circleLabel.setBackground(backgroundColor);
+                }
+
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent evt) {
+                    // Tìm thông tin của user hiện tại
+                    User selectedUser = users.stream()
+                            .filter(user -> user.getIdUser() == userID)
+                            .findFirst()
+                            .orElse(null);
+
+                    if (selectedUser != null) {
+                        // Mở màn hình chi tiết liên lạc với thông tin từ user
+                        ChiTietLienLac chiTietLienLac = new ChiTietLienLac(
+                                selectedUser.getIdUser(),
+                                selectedUser.getUsername(),
+                                selectedUser.getPhone(),
+                                selectedUser.getEmail(),
+                                selectedUser.getAddress(),
+                                selectedUser.getNote(),
+                                selectedUser.getAvatar(),
+                                selectedUser.getIsBlock(),
+                                TrangChu.this
+                        );
+                        chiTietLienLac.setVisible(true);
+
+                        // Ẩn màn hình chính
+                        setVisible(false);
+                    } else {
+                        System.out.println("Không tìm thấy thông tin của user: " + contactName);
                     }
-
-                    @Override
-                    public void mouseExited(java.awt.event.MouseEvent evt) {
-                        // Khôi phục màu nền ban đầu
-                        contactPanel.setBackground(originalPanelBackground);
-                        contactPanel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-
-                        // Khôi phục font ban đầu
-                        nameLabel.setFont(originalNameFont);
-
-                        // Khôi phục màu nền của ô chữ cái
-                        circleLabel.setBackground(backgroundColor);
-                    }
-
-                    @Override
-                    public void mouseClicked(java.awt.event.MouseEvent evt) {
-                        // Tìm thông tin của user hiện tại
-                        User selectedUser = users.stream()
-                                .filter(user -> user.getIdUser() == userID)
-                                .findFirst()
-                                .orElse(null);
-
-                        if (selectedUser != null) {
-                            // Mở màn hình chi tiết liên lạc với thông tin từ user
-                            ChiTietLienLac chiTietLienLac = new ChiTietLienLac(
-                                    selectedUser.getIdUser(),
-                                    selectedUser.getUsername(),
-                                    selectedUser.getPhone(),
-                                    selectedUser.getEmail(),
-                                    selectedUser.getAddress(),
-                                    selectedUser.getNote(),
-                                    selectedUser.getAvatar(),
-                                    selectedUser.getIsBlock(),
-                                    TrangChu.this
-                            );
-                            chiTietLienLac.setVisible(true);
-
-                            // Ẩn màn hình chính
-                            setVisible(false);
-                        } else {
-                            System.out.println("Không tìm thấy thông tin của user: " + contactName);
-                        }
-                    }
-                });
-            }
+                }
+            });
+        }
         return contactPanel;
     }
 
@@ -657,179 +658,178 @@ public class TrangChu extends javax.swing.JFrame {
     }//GEN-LAST:event_ExportBtnActionPerformed
 
     private void AddDanhbaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_AddDanhbaActionPerformed
-   addContacts addForm = new addContacts();
-    addForm.setVisible(true);
-    this.dispose(); // hoặc this.setVisible(false) nếu bạn muốn giữ form TrangChu
+        addContacts addForm = new addContacts();
+        addForm.setVisible(true);
+        this.dispose(); // hoặc this.setVisible(false) nếu bạn muốn giữ form TrangChu
     }//GEN-LAST:event_AddDanhbaActionPerformed
- private void deleteSelectedContacts(List<String> selectedContacts) {
-    // Kiểm tra nếu danh sách liên hệ được chọn trống hoặc null
-    if (selectedContacts == null || selectedContacts.isEmpty()) {
-        JOptionPane.showMessageDialog(this,
-                "Không có liên hệ nào được chọn để xóa",
-                "Thông báo",
-                JOptionPane.WARNING_MESSAGE);
-        return;
-    }
+    private void deleteSelectedContacts(List<String> selectedContacts) {
+        // Kiểm tra nếu danh sách liên hệ được chọn trống hoặc null
+        if (selectedContacts == null || selectedContacts.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Không có liên hệ nào được chọn để xóa",
+                    "Thông báo",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-    Connection connection = null;
-    PreparedStatement preparedStatement = null;
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
 
-    try {
-        // Kết nối đến cơ sở dữ liệu
-        connection = DatabaseConnection.connect();
-        if (connection != null) {
-            // Tạo câu lệnh SQL để xóa liên hệ (cột 'username' là ví dụ, thay bằng cột phù hợp của bạn)
-            String sql = "DELETE FROM user WHERE username = ?";
-            
-            // Đếm số lượng liên hệ đã xóa
-            int totalDeleted = 0;
+        try {
+            // Kết nối đến cơ sở dữ liệu
+            connection = DatabaseConnection.connect();
+            if (connection != null) {
+                // Tạo câu lệnh SQL để xóa liên hệ (cột 'username' là ví dụ, thay bằng cột phù hợp của bạn)
+                String sql = "DELETE FROM user WHERE username = ?";
 
-            // Lặp qua từng liên hệ và thực hiện xóa
-            for (String contactId : selectedContacts) {
-                // Tạo PreparedStatement mới cho mỗi lần lặp để tránh lỗi trong việc tái sử dụng
-                preparedStatement = connection.prepareStatement(sql);
-                preparedStatement.setString(1, contactId); // Gán giá trị liên hệ vào câu lệnh SQL
-                int rowsAffected = preparedStatement.executeUpdate();
-                totalDeleted += rowsAffected; // Cộng dồn số dòng bị ảnh hưởng
-            }
+                // Đếm số lượng liên hệ đã xóa
+                int totalDeleted = 0;
 
-            // Hiển thị thông báo kết quả xóa
-            if (totalDeleted > 0) {
-                JOptionPane.showMessageDialog(this,
-                        "Đã xóa thành công " + totalDeleted + " liên hệ",
-                        "Thông báo",
-                        JOptionPane.INFORMATION_MESSAGE);
+                // Lặp qua từng liên hệ và thực hiện xóa
+                for (String contactId : selectedContacts) {
+                    // Tạo PreparedStatement mới cho mỗi lần lặp để tránh lỗi trong việc tái sử dụng
+                    preparedStatement = connection.prepareStatement(sql);
+                    preparedStatement.setString(1, contactId); // Gán giá trị liên hệ vào câu lệnh SQL
+                    int rowsAffected = preparedStatement.executeUpdate();
+                    totalDeleted += rowsAffected; // Cộng dồn số dòng bị ảnh hưởng
+                }
+
+                // Hiển thị thông báo kết quả xóa
+                if (totalDeleted > 0) {
+                    JOptionPane.showMessageDialog(this,
+                            "Đã xóa thành công " + totalDeleted + " liên hệ",
+                            "Thông báo",
+                            JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "Không có liên hệ nào được xóa",
+                            "Thông báo",
+                            JOptionPane.INFORMATION_MESSAGE);
+                }
             } else {
                 JOptionPane.showMessageDialog(this,
-                        "Không có liên hệ nào được xóa",
-                        "Thông báo",
-                        JOptionPane.INFORMATION_MESSAGE);
+                        "Không thể kết nối đến cơ sở dữ liệu",
+                        "Lỗi",
+                        JOptionPane.ERROR_MESSAGE);
             }
-        } else {
+        } catch (SQLException e) {
+            // Xử lý lỗi SQL
+            e.printStackTrace();
+            String errorMessage = "Lỗi khi xóa liên hệ: ";
+            errorMessage += e.getMessage() != null ? e.getMessage() : "Không xác định được nguyên nhân";
             JOptionPane.showMessageDialog(this,
-                    "Không thể kết nối đến cơ sở dữ liệu",
+                    errorMessage,
                     "Lỗi",
                     JOptionPane.ERROR_MESSAGE);
-        }
-    } catch (SQLException e) {
-        // Xử lý lỗi SQL
-        e.printStackTrace();
-        String errorMessage = "Lỗi khi xóa liên hệ: ";
-        errorMessage += e.getMessage() != null ? e.getMessage() : "Không xác định được nguyên nhân";
-        JOptionPane.showMessageDialog(this,
-                errorMessage,
-                "Lỗi",
-                JOptionPane.ERROR_MESSAGE);
-    } finally {
-        // Đóng tài nguyên trong block finally để tránh rò rỉ tài nguyên
-        try {
-            if (preparedStatement != null) {
-                preparedStatement.close();
+        } finally {
+            // Đóng tài nguyên trong block finally để tránh rò rỉ tài nguyên
+            try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        try {
-            if (connection != null) {
-                connection.close();
+            try {
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
-}
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-  if (!isSelectionMode) {
-    // Bắt đầu chế độ chọn
-    isSelectionMode = true;
-    btnDelete.setText("Xác nhận xóa");
+        if (!isSelectionMode) {
+            // Bắt đầu chế độ chọn
+            isSelectionMode = true;
+            btnDelete.setText("Xác nhận xóa");
 
-    // Hiển thị checkbox và tùy chỉnh giao diện
-    contactCheckboxes.values().forEach(checkbox -> {
-        checkbox.setVisible(true);
-        checkbox.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
-        checkbox.setFont(new Font("Arial", Font.PLAIN, 14));
-        checkbox.setBackground(new Color(240, 240, 240));
-        checkbox.setOpaque(true);
-        checkbox.setFocusable(false); // Tắt viền khi checkbox được chọn
-    });
+            // Hiển thị checkbox và tùy chỉnh giao diện
+            contactCheckboxes.values().forEach(checkbox -> {
+                checkbox.setVisible(true);
+                checkbox.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+                checkbox.setFont(new Font("Arial", Font.PLAIN, 14));
+                checkbox.setBackground(new Color(240, 240, 240));
+                checkbox.setOpaque(true);
+                checkbox.setFocusable(false); // Tắt viền khi checkbox được chọn
+            });
 
-    // Thêm nút Hủy nếu chưa có
-    if (confirmDeleteBtn == null) {
-        confirmDeleteBtn = new JButton("Hủy");
-        confirmDeleteBtn.setFont(new Font("Helvetica Neue", Font.BOLD, 16));
-        confirmDeleteBtn.setBackground(new Color(207, 207, 207));
-        confirmDeleteBtn.setFocusPainted(false); // Tắt viền khi nút được chọn
+            // Thêm nút Hủy nếu chưa có
+            if (confirmDeleteBtn == null) {
+                confirmDeleteBtn = new JButton("Hủy");
+                confirmDeleteBtn.setFont(new Font("Helvetica Neue", Font.BOLD, 16));
+                confirmDeleteBtn.setBackground(new Color(207, 207, 207));
+                confirmDeleteBtn.setFocusPainted(false); // Tắt viền khi nút được chọn
 
-        // Thêm nút Hủy vào cùng hàng với nút Xóa
-        Container parent = btnDelete.getParent();
-        parent.add(confirmDeleteBtn);
-        parent.revalidate();
-        parent.repaint();
+                // Thêm nút Hủy vào cùng hàng với nút Xóa
+                Container parent = btnDelete.getParent();
+                parent.add(confirmDeleteBtn);
+                parent.revalidate();
+                parent.repaint();
 
-        // Xử lý sự kiện cho nút Hủy
-        confirmDeleteBtn.addActionListener(e -> {
-            // Thoát chế độ chọn
-            isSelectionMode = false;
-            btnDelete.setText("Xóa Tất Cả");
+                // Xử lý sự kiện cho nút Hủy
+                confirmDeleteBtn.addActionListener(e -> {
+                    // Thoát chế độ chọn
+                    isSelectionMode = false;
+                    btnDelete.setText("Xóa Tất Cả");
 
-            // Ẩn tất cả checkbox
-            contactCheckboxes.values().forEach(checkbox -> checkbox.setVisible(false));
+                    // Ẩn tất cả checkbox
+                    contactCheckboxes.values().forEach(checkbox -> checkbox.setVisible(false));
 
-            // Bỏ chọn tất cả checkbox
-            contactCheckboxes.values().forEach(checkbox -> checkbox.setSelected(false));
+                    // Bỏ chọn tất cả checkbox
+                    contactCheckboxes.values().forEach(checkbox -> checkbox.setSelected(false));
 
-            // Xóa nút Hủy
-            parent.remove(confirmDeleteBtn);
-            parent.revalidate();
-            parent.repaint();
-            confirmDeleteBtn = null; // Đảm bảo không thêm trùng nút
-        });
-    }
-} else {
-    // Kiểm tra xem có contact nào được chọn không
-    List<String> selectedContacts = contactCheckboxes.entrySet().stream()
-            .filter(entry -> entry.getValue().isSelected())
-            .map(Map.Entry::getKey)
-            .collect(Collectors.toList());
+                    // Xóa nút Hủy
+                    parent.remove(confirmDeleteBtn);
+                    parent.revalidate();
+                    parent.repaint();
+                    confirmDeleteBtn = null; // Đảm bảo không thêm trùng nút
+                });
+            }
+        } else {
+            // Kiểm tra xem có contact nào được chọn không
+            List<String> selectedContacts = contactCheckboxes.entrySet().stream()
+                    .filter(entry -> entry.getValue().isSelected())
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
 
-    if (selectedContacts.isEmpty()) {
-        JOptionPane.showMessageDialog(this,
-                "Vui lòng chọn ít nhất một liên hệ để xóa",
-                "Thông báo",
-                JOptionPane.WARNING_MESSAGE);
-        return;
-    }
+            if (selectedContacts.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "Vui lòng chọn ít nhất một liên hệ để xóa",
+                        "Thông báo",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
- // Hiển thị dialog xác nhận với số lượng liên hệ đã chọn
-int confirm = JOptionPane.showConfirmDialog(this,
-        "Bạn có chắc chắn muốn xóa " + selectedContacts.size() + " liên hệ đã chọn?",
-        "Xác nhận xóa",
-        JOptionPane.YES_NO_OPTION);
+            // Hiển thị dialog xác nhận với số lượng liên hệ đã chọn
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Bạn có chắc chắn muốn xóa " + selectedContacts.size() + " liên hệ đã chọn?",
+                    "Xác nhận xóa",
+                    JOptionPane.YES_NO_OPTION);
 
+            if (confirm == JOptionPane.YES_OPTION) {
+                // Thực hiện xóa các contact đã chọn
+                deleteSelectedContacts(selectedContacts);
 
-    if (confirm == JOptionPane.YES_OPTION) {
-        // Thực hiện xóa các contact đã chọn
-        deleteSelectedContacts(selectedContacts);
+                // Reset UI
+                isSelectionMode = false;
+                btnDelete.setText("Xóa Tất Cả");
 
-        // Reset UI
-        isSelectionMode = false;
-        btnDelete.setText("Xóa Tất Cả");
+                // Ẩn tất cả checkbox
+                contactCheckboxes.values().forEach(checkbox -> checkbox.setVisible(false));
 
-        // Ẩn tất cả checkbox
-        contactCheckboxes.values().forEach(checkbox -> checkbox.setVisible(false));
+                // Xóa nút Hủy
+                Container parent = btnDelete.getParent();
+                parent.remove(confirmDeleteBtn);
+                parent.revalidate();
+                parent.repaint();
+                confirmDeleteBtn = null;
 
-        // Xóa nút Hủy
-        Container parent = btnDelete.getParent();
-        parent.remove(confirmDeleteBtn);
-        parent.revalidate();
-        parent.repaint();
-        confirmDeleteBtn = null;
-
-        // Cập nhật lại danh sách liên hệ
-        addContactListToPanel();
-    }
-}
+                // Cập nhật lại danh sách liên hệ
+                addContactListToPanel();
+            }
+        }
     }//GEN-LAST:event_btnDeleteActionPerformed
     public class RoundedBorder extends AbstractBorder {
 
